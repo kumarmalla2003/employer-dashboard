@@ -12,6 +12,6 @@ def make_app():
 
 if __name__ == "__main__":
     app = make_app()
-    app.listen(8888)  # Runs on http://localhost:8888
-    print("Server started on http://localhost:8888")
+    app.listen(8000)  # Runs on http://localhost:8000
+    print("Server started on http://localhost:8000")
     tornado.ioloop.IOLoop.current().start()
