@@ -10,6 +10,7 @@ import LoginPage from "./components/LoginPage.jsx";
 import DashboardPage from "./components/DashboardPage.jsx";
 import EmployeeListPage from "./components/EmployeeListPage.jsx";
 import AddEditEmployeePage from "./components/AddEditEmployeePage.jsx";
+import EmployeeDetailsPage from "./components/EmployeeDetailsPage.jsx";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/employees" element={<EmployeeListPage />} />
         <Route path="/add-employee" element={<AddEditEmployeePage />} />
         <Route path="/employees/edit/:id" element={<AddEditEmployeePage />} />
+        <Route path="/employees/:id" element={<EmployeeDetailsPage />} />
       </Routes>
     </Router>
   );

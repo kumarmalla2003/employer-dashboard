@@ -1,10 +1,12 @@
 // src/components/DashboardPage.jsx
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Button from "./Button"; // Import the new Button component
+import Button from "./Button";
+import SettingsModal from "./SettingsModal"; // Import the new modal component
 
 const DashboardPage = () => {
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
 
   // Dummy data for demonstration
   const stats = [
@@ -29,6 +31,9 @@ const DashboardPage = () => {
     navigate("/");
   };
 
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -36,7 +41,7 @@ const DashboardPage = () => {
           <h1 className="text-3xl font-bold text-gray-50">Dashboard</h1>
           <nav className="space-x-2 sm:space-x-4 flex items-center">
             <Button
-              onClick={() => handleNavigation("/settings")}
+              onClick={openModal} // Use the new function to open the modal
               className="text-gray-50 bg-gray-700 hover:bg-gray-600 focus:ring-blue-500 focus:ring-offset-gray-900"
             >
               Settings
@@ -112,6 +117,9 @@ const DashboardPage = () => {
           </div>
         </section>
       </div>
+
+      {/* Render the modal component */}
+      <SettingsModal show={isModalOpen} onClose={closeModal} />
     </div>
   );
 };
