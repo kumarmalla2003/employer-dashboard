@@ -1,6 +1,7 @@
 // src/components/LoginPage.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Button from "./Button"; // Import the new Button component
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -18,9 +19,9 @@ const LoginPage = () => {
 
     if (email === correctEmail && password === correctPassword) {
       console.log("Login successful!");
-      navigate("/dashboard"); // Navigate to the dashboard page on success
+      navigate("/dashboard");
     } else {
-      setError("Invalid credentials"); // Display error message for failed attempts
+      setError("Invalid credentials");
     }
   };
 
@@ -78,12 +79,12 @@ const LoginPage = () => {
             />
           </div>
           <div>
-            <button
+            <Button
               type="submit"
-              className="w-full px-4 py-2 text-sm font-medium text-gray-50 bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-gray-900 cursor-pointer"
+              className="w-full text-gray-50 bg-blue-500 hover:bg-blue-600 focus:ring-blue-500 focus:ring-offset-gray-900"
             >
               Sign in
-            </button>
+            </Button>
           </div>
         </form>
       </div>
