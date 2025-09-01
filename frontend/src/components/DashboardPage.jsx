@@ -1,6 +1,7 @@
 // src/components/DashboardPage.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import Button from "./Button"; // Import the new Button component
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -34,18 +35,18 @@ const DashboardPage = () => {
         <header className="flex justify-between items-center pb-4 border-b border-gray-800">
           <h1 className="text-3xl font-bold text-gray-50">Dashboard</h1>
           <nav className="space-x-2 sm:space-x-4 flex items-center">
-            <button
+            <Button
               onClick={() => handleNavigation("/settings")}
-              className="px-4 py-2 text-sm font-medium text-gray-50 bg-gray-700 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-gray-900 transform transition-transform duration-300 hover:scale-105 hover:shadow-lg cursor-pointer"
+              className="text-gray-50 bg-gray-700 hover:bg-gray-600 focus:ring-blue-500 focus:ring-offset-gray-900"
             >
               Settings
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handleLogout}
-              className="px-4 py-2 text-sm font-medium text-gray-50 bg-red-500 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 focus:ring-offset-gray-900 transform transition-transform duration-300 hover:scale-105 hover:shadow-lg cursor-pointer"
+              className="text-gray-50 bg-red-500 hover:bg-red-600 focus:ring-red-500 focus:ring-offset-gray-900"
             >
               Logout
-            </button>
+            </Button>
           </nav>
         </header>
 
@@ -71,18 +72,18 @@ const DashboardPage = () => {
             Quick Actions
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <button
+            <Button
               onClick={() => handleNavigation("/add-employee")}
-              className="px-6 py-3 text-base font-medium text-gray-50 bg-green-500 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 focus:ring-offset-gray-900 transform transition-transform duration-300 hover:scale-105 hover:shadow-lg cursor-pointer"
+              className="text-base text-gray-50 bg-green-500 hover:bg-green-600 focus:ring-green-500 focus:ring-offset-gray-900"
             >
               Add New Employee
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => handleNavigation("/employees")}
-              className="px-6 py-3 text-base font-medium text-gray-50 bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-gray-900 transform transition-transform duration-300 hover:scale-105 hover:shadow-lg cursor-pointer"
+              className="text-base text-gray-50 bg-blue-500 hover:bg-blue-600 focus:ring-blue-500 focus:ring-offset-gray-900"
             >
               Employee List
-            </button>
+            </Button>
           </div>
         </section>
 
@@ -100,12 +101,12 @@ const DashboardPage = () => {
                   <p className="font-medium text-gray-200">{employee.name}</p>
                   <p className="text-sm text-gray-400">{employee.position}</p>
                 </div>
-                <button
+                <Button
                   onClick={() => handleNavigation(`/employee/${employee.id}`)}
-                  className="text-blue-400 hover:text-blue-300 text-sm font-medium"
+                  className="text-sm text-blue-400 hover:text-blue-300"
                 >
                   View Details
-                </button>
+                </Button>
               </div>
             ))}
           </div>

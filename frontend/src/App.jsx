@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import LoginPage from "./components/LoginPage.jsx";
 import DashboardPage from "./components/DashboardPage.jsx";
+import EmployeeListPage from "./components/EmployeeListPage.jsx";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/employees" element={<EmployeeListPage />} />
       </Routes>
     </Router>
   );
