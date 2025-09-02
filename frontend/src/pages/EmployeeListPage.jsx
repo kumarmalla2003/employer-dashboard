@@ -1,7 +1,7 @@
 // src/components/EmployeeListPage.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Button from "./Button";
+import Button from "../components/Button";
 
 const EmployeeListPage = () => {
   const navigate = useNavigate();

@@ -1,7 +1,7 @@
 // src/components/AddEditEmployeePage.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import Button from "./Button";
+import Button from "../components/Button";
 
 const AddEditEmployeePage = () => {
   const navigate = useNavigate();

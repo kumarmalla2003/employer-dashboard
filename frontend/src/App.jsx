@@ -1,11 +1,11 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Layout from "./components/Layout.jsx";
-import DashboardPage from "./components/DashboardPage.jsx";
-import EmployeeListPage from "./components/EmployeeListPage.jsx";
-import AddEditEmployeePage from "./components/AddEditEmployeePage.jsx";
-import EmployeeDetailsPage from "./components/EmployeeDetailsPage.jsx";
-import LandingPage from "./components/LandingPage.jsx";
+import Layout from "./layout/Layout.jsx";
+import DashboardPage from "./pages/DashboardPage.jsx";
+import EmployeeListPage from "./pages/EmployeeListPage.jsx";
+import AddEditEmployeePage from "./pages/AddEditEmployeePage.jsx";
+import EmployeeDetailsPage from "./pages/EmployeeDetailsPage.jsx";
+import LandingPage from "./pages/LandingPage.jsx";
 
 // This check is a placeholder for a real authentication system
 const isAuthenticated = () => {

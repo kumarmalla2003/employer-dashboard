@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import Button from "./Button";
+import Button from "../components/Button";
 
 const EmployeeDetailsPage = () => {
   const navigate = useNavigate();

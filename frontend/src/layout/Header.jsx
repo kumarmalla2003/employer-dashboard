@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
-import ResetPasswordModal from "./ResetPasswordModal.jsx";
-import MobileNav from "./MobileNav.jsx";
-import Button from "./Button.jsx";
+import ResetPasswordModal from "../components/ResetPasswordModal.jsx";
+import MobileNav from "../components/MobileNav.jsx";
+import Button from "../components/Button.jsx";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -16,6 +16,7 @@ const Header = () => {
   const homeRef = useRef(null);
   const dashboardRef = useRef(null);
   const employeesRef = useRef(null);
+  const profileMenuRef = useRef(null); // Ref for the profile menu container
 
   const navRefs = {
     "/": homeRef,
@@ -47,6 +48,29 @@ const Header = () => {
       setUnderlineStyle(initialPosition);
     }
   }, [activePath]);
+
+  // UseEffect for handling clicks outside the profile menu
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Close the profile menu if it's open and the click is outside the menu container
+      if (
+        profileMenuRef.current &&
+        !profileMenuRef.current.contains(event.target)
+      ) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+
+    // Add the event listener when the profile menu is open
+    if (isProfileMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    // Clean up the event listener when the component unmounts or the menu closes
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isProfileMenuOpen]); // Dependency on isProfileMenuOpen to add/remove listener
 
   const handleMouseEnter = (path) => {
     const hoverPosition = getTargetPosition(path);
@@ -154,7 +178,7 @@ const Header = () => {
         </nav>
 
         {/* Profile Menu Dropdown with SVG Icon */}
-        <div className="relative">
+        <div className="relative" ref={profileMenuRef}>
           <Button
             onClick={toggleProfileMenu}
             className="p-2 rounded-full text-gray-50 bg-gray-700 hover:bg-gray-600 focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-blue-500 transition-colors"
@@ -176,13 +200,13 @@ const Header = () => {
           </Button>
 
           {isProfileMenuOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg py-1 z-20 ring-1 ring-black ring-opacity-5">
+            <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg px-2 py-2 z-20 ring-1 ring-black ring-opacity-5">
               <button
                 onClick={() => {
                   openModal();
                   setIsProfileMenuOpen(false);
                 }}
-                className="block px-4 py-2 text-sm text-gray-300 w-full text-left hover:bg-gray-700 hover:text-gray-50"
+                className="block px-4 py-2 text-sm text-gray-300 w-full text-left hover:bg-gray-700 hover:text-gray-50 cursor-pointer"
               >
                 Reset Password
               </button>
@@ -191,7 +215,7 @@ const Header = () => {
                   handleLogout();
                   setIsProfileMenuOpen(false);
                 }}
-                className="block px-4 py-2 text-sm text-red-400 w-full text-left hover:bg-gray-700 hover:text-red-300"
+                className="block px-4 py-2 text-sm text-red-400 w-full text-left hover:bg-gray-700 hover:text-red-300 cursor-pointer"
               >
                 Logout
               </button>
