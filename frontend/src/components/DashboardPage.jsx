@@ -1,18 +1,15 @@
-// src/components/DashboardPage.jsx
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "./Button";
-import SettingsModal from "./SettingsModal"; // Import the new modal component
 
 const DashboardPage = () => {
   const navigate = useNavigate();
-  const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
 
-  // Dummy data for demonstration
+  // Dummy data for demonstration with new metrics
   const stats = [
     { name: "Total Employees", count: 150 },
-    { name: "Active Employees", count: 140 },
-    { name: "Employees on Leave", count: 10 },
+    { name: "Total Departments", count: 8 },
+    { name: "New Hires This Month", count: 3 },
   ];
 
   const recentEmployees = [
@@ -25,77 +22,49 @@ const DashboardPage = () => {
     navigate(path);
   };
 
-  const handleLogout = () => {
-    // In a real application, you would clear the user's session or token here.
-    console.log("User logged out!");
-    navigate("/");
-  };
-
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
-
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        <header className="flex justify-between items-center pb-4 border-b border-gray-800">
-          <h1 className="text-3xl font-bold text-gray-50">Dashboard</h1>
-          <nav className="space-x-2 sm:space-x-4 flex items-center">
-            <Button
-              onClick={openModal} // Use the new function to open the modal
-              className="text-gray-50 bg-gray-700 hover:bg-gray-600 focus:ring-blue-500 focus:ring-offset-gray-900"
-            >
-              Settings
-            </Button>
-            <Button
-              onClick={handleLogout}
-              className="text-gray-50 bg-red-500 hover:bg-red-600 focus:ring-red-500 focus:ring-offset-gray-900"
-            >
-              Logout
-            </Button>
-          </nav>
-        </header>
+    <div className="bg-gray-950 text-gray-100 min-h-screen p-4 sm:p-6 lg:p-8">
+      {/* Updated Heading Section */}
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-3xl sm:text-4xl font-bold text-gray-50">
+          Dashboard
+        </h1>
+        <Button
+          onClick={() => handleNavigation("/add-employee")}
+          className="text-gray-50 bg-green-500 hover:bg-green-600 focus:ring-green-500 focus:ring-offset-gray-900"
+        >
+          Add Employee
+        </Button>
+      </div>
+      <hr className="border-gray-700 mb-6" />
 
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {stats.map((stat, index) => (
-            <div
-              key={index}
-              className="bg-gray-900 rounded-lg shadow-md p-6 transform transition-transform duration-300 hover:scale-105 hover:shadow-lg"
-            >
-              <h4 className="text-lg font-semibold text-gray-300">
-                {stat.name}
-              </h4>
-              <p className="mt-2 text-4xl font-extrabold text-blue-400">
-                {stat.count}
-              </p>
-            </div>
-          ))}
-        </section>
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {stats.map((stat) => (
+          <div
+            key={stat.name}
+            className="bg-gray-900 rounded-lg shadow-md p-6 transform transition-transform duration-300 hover:scale-105 hover:shadow-xl"
+          >
+            <h2 className="text-lg font-medium text-gray-300">{stat.name}</h2>
+            <p className="mt-2 text-4xl font-extrabold text-blue-500">
+              {stat.count}
+            </p>
+          </div>
+        ))}
+      </section>
 
-        {/* Quick Actions */}
+      <div className="grid grid-cols-1 gap-6">
         <section className="bg-gray-900 rounded-lg shadow-md p-6">
-          <h3 className="text-xl font-semibold text-gray-50 mb-4">
-            Quick Actions
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Button
-              onClick={() => handleNavigation("/add-employee")}
-              className="text-base text-gray-50 bg-green-500 hover:bg-green-600 focus:ring-green-500 focus:ring-offset-gray-900"
-            >
-              Add New Employee
-            </Button>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-semibold text-gray-50">
+              Recent Activity
+            </h3>
             <Button
               onClick={() => handleNavigation("/employees")}
-              className="text-base text-gray-50 bg-blue-500 hover:bg-blue-600 focus:ring-blue-500 focus:ring-offset-gray-900"
+              className="text-gray-50 bg-blue-500 hover:bg-blue-600 focus:ring-blue-500 focus:ring-offset-gray-900"
             >
-              Employee List
+              View All
             </Button>
           </div>
-        </section>
-
-        <section className="bg-gray-900 rounded-lg shadow-md p-6">
-          <h3 className="text-xl font-semibold mb-4 text-gray-50">
-            Recent Activity
-          </h3>
           <div className="space-y-4">
             {recentEmployees.map((employee) => (
               <div
@@ -107,7 +76,7 @@ const DashboardPage = () => {
                   <p className="text-sm text-gray-400">{employee.position}</p>
                 </div>
                 <Button
-                  onClick={() => handleNavigation(`/employee/${employee.id}`)}
+                  onClick={() => handleNavigation(`/employees/${employee.id}`)}
                   className="text-sm text-blue-400 hover:text-blue-300"
                 >
                   View Details
@@ -117,9 +86,6 @@ const DashboardPage = () => {
           </div>
         </section>
       </div>
-
-      {/* Render the modal component */}
-      <SettingsModal show={isModalOpen} onClose={closeModal} />
     </div>
   );
 };

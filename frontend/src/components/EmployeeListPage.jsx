@@ -43,12 +43,11 @@ const EmployeeListPage = () => {
   const handleDelete = (id) => {
     // In a real app, this would make a DELETE API call
     console.log(`Deleting employee with ID: ${id}`);
-    const updatedEmployees = employees.filter((employee) => employee.id !== id);
+    const updatedEmployees = employees.filter((emp) => emp.id !== id);
     setEmployees(updatedEmployees);
   };
 
   const handleView = (id) => {
-    // Navigate to the Employee Details page
     navigate(`/employees/${id}`);
   };
 
@@ -60,114 +59,125 @@ const EmployeeListPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto">
-        <header className="flex flex-col sm:flex-row justify-between items-center pb-4 border-b border-gray-800">
-          <h1 className="text-3xl font-bold text-gray-50 mb-4 sm:mb-0">
-            Employee List
-          </h1>
-          <nav className="flex space-x-2 sm:space-x-4">
-            <Button
-              onClick={() => navigate("/dashboard")}
-              className="text-gray-50 bg-gray-700 hover:bg-gray-600 focus:ring-blue-500 focus:ring-offset-gray-900"
-            >
-              Dashboard
-            </Button>
-            <Button
-              onClick={() => navigate("/add-employee")}
-              className="text-gray-50 bg-green-500 hover:bg-green-600 focus:ring-green-500 focus:ring-offset-gray-900"
-            >
-              Add New Employee
-            </Button>
-          </nav>
-        </header>
+      {/* Updated Heading Section */}
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-3xl sm:text-4xl font-bold text-gray-50">
+          Employees
+        </h1>
+        <Button
+          onClick={() => navigate("/add-employee")}
+          className="text-gray-50 bg-green-500 hover:bg-green-600 focus:ring-green-500 focus:ring-offset-gray-900"
+        >
+          Add Employee
+        </Button>
+      </div>
+      <hr className="border-gray-700 mb-6" />
 
-        <section className="my-8">
-          <div className="mb-4">
-            <input
-              type="text"
-              placeholder="Search by name or ID..."
-              className="w-full p-3 rounded-md bg-gray-900 text-gray-300 border border-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={searchTerm}
-              onChange={handleSearchChange}
-            />
-          </div>
-          <div className="overflow-x-auto bg-gray-900 rounded-lg shadow-md">
-            <table className="min-w-full divide-y divide-gray-800">
-              <thead className="bg-gray-800">
-                <tr>
-                  <th className="px-6 py-4 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th className="px-6 py-4 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">
-                    Employee ID
-                  </th>
-                  <th className="px-6 py-4 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">
-                    Position
-                  </th>
-                  <th className="px-6 py-4 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">
-                    Department
-                  </th>
-                  <th className="px-6 py-4 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-800">
-                {filteredEmployees.length > 0 ? (
-                  filteredEmployees.map((employee, index) => (
-                    <tr
-                      key={employee.id}
-                      className={
-                        index % 2 === 0 ? "bg-gray-900" : "bg-gray-800"
-                      }
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-200 text-center">
+      {/* Search Input */}
+      <div className="mb-6">
+        <input
+          type="text"
+          placeholder="Search employees by name or ID..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+          className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-md text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+
+      <div className="bg-gray-900 rounded-lg shadow-md overflow-hidden">
+        <section className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-700">
+            <thead className="bg-gray-800">
+              <tr>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-center text-lg font-bold text-gray-400 uppercase tracking-wider"
+                >
+                  Name
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-center text-lg font-bold text-gray-400 uppercase tracking-wider"
+                >
+                  Employee ID
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-center text-lg font-bold text-gray-400 uppercase tracking-wider"
+                >
+                  Position
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-center text-lg font-bold text-gray-400 uppercase tracking-wider"
+                >
+                  Department
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-center text-lg font-bold text-gray-400 uppercase tracking-wider"
+                >
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-gray-900 divide-y divide-gray-700">
+              {filteredEmployees.length > 0 ? (
+                filteredEmployees.map((employee, index) => (
+                  <tr
+                    key={employee.id}
+                    className={`transition-colors duration-200 ${
+                      index % 2 === 0 ? "bg-gray-900" : "bg-gray-800"
+                    }`}
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                      <div className="text-sm font-medium text-gray-200">
                         {employee.name}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 text-center">
-                        {employee.id}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 text-center">
-                        {employee.position}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 text-center">
-                        {employee.department}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                        <Button
-                          onClick={() => handleView(employee.id)}
-                          className="text-blue-400 hover:text-blue-300 mr-2"
-                        >
-                          View
-                        </Button>
-                        <Button
-                          onClick={() => handleEdit(employee.id)}
-                          className="text-yellow-400 hover:text-yellow-300 mr-2"
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          onClick={() => handleDelete(employee.id)}
-                          className="text-red-400 hover:text-red-300"
-                        >
-                          Delete
-                        </Button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan="5"
-                      className="px-6 py-4 text-center text-gray-400"
-                    >
-                      No employees found.
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 text-center">
+                      {employee.id}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 text-center">
+                      {employee.position}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 text-center">
+                      {employee.department}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                      <Button
+                        onClick={() => handleView(employee.id)}
+                        className="text-blue-400 hover:text-blue-300 mr-2"
+                      >
+                        View
+                      </Button>
+                      <Button
+                        onClick={() => handleEdit(employee.id)}
+                        className="text-yellow-400 hover:text-yellow-300 mr-2"
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        onClick={() => handleDelete(employee.id)}
+                        className="text-red-400 hover:text-red-300"
+                      >
+                        Delete
+                      </Button>
                     </td>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan="5"
+                    className="px-6 py-4 text-center text-gray-400"
+                  >
+                    No employees found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </section>
       </div>
     </div>
