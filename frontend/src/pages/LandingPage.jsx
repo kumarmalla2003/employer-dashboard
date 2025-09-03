@@ -10,7 +10,7 @@ const LandingPage = () => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   // Hardcoded for demonstration. This will be replaced by a proper auth check later.
-  const isLoggedIn = true;
+  const isLoggedIn = false;
 
   const handleOpenLoginModal = () => {
     setIsLoginModalOpen(true);
@@ -22,6 +22,18 @@ const LandingPage = () => {
 
   const handleGoToDashboard = () => {
     navigate("/dashboard");
+  };
+
+  // Function to handle signup
+  const handleSignUp = () => {
+    // Navigate to the signup page or show a signup modal
+    console.log("Navigating to signup...");
+    // navigate("/signup"); // Example navigation
+  };
+
+  // Function to handle navigating to the employees page
+  const handleGoToEmployees = () => {
+    navigate("/employees");
   };
 
   return (
@@ -68,6 +80,13 @@ const LandingPage = () => {
                 className="text-gray-50 bg-blue-500 hover:bg-blue-600 focus:ring-blue-500 focus:ring-offset-gray-900"
               >
                 Login
+              </Button>
+              <Button
+                onClick={handleSignUp}
+                className="text-gray-50
+                  bg-gray-700 hover:bg-blue-500 focus:ring-blue-600 focus:ring-offset-gray-900"
+              >
+                Sign Up
               </Button>
             </nav>
           </div>
@@ -134,19 +153,25 @@ const LandingPage = () => {
             <section className="py-16 text-center">
               <div className="max-w-3xl mx-auto bg-gray-900 p-10 rounded-lg shadow-2xl border border-gray-800 space-y-6">
                 <h2 className="text-2xl sm:text-4xl font-bold text-white">
-                  Your <span className="text-blue-500">Dashboard</span> Awaits!
+                  Welcome Back!
                 </h2>
                 <p className="text-lg text-gray-400">
-                  Ready to take control? Jump back into your employer dashboard
-                  to manage your workforce, view key metrics, and get a complete
-                  overview of your team's data.
+                  Manage your workforce and view key metrics with ease.
                 </p>
-                <Button
-                  onClick={handleGoToDashboard}
-                  className="px-8 py-3 text-lg font-semibold w-full sm:w-auto bg-blue-500 hover:bg-blue-600 focus:ring-blue-500 focus:ring-offset-gray-900"
-                >
-                  Go to Dashboard
-                </Button>
+                <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                  <Button
+                    onClick={handleGoToDashboard}
+                    className="px-8 py-3 text-lg font-semibold w-full sm:w-auto bg-blue-500 hover:bg-blue-600 focus:ring-blue-500 focus:ring-offset-gray-900"
+                  >
+                    Go to Dashboard
+                  </Button>
+                  <Button
+                    onClick={handleGoToEmployees}
+                    className="px-8 py-3 text-lg font-semibold w-full sm:w-auto bg-gray-700 hover:bg-blue-500 focus:ring-blue-600 focus:ring-offset-gray-900"
+                  >
+                    Manage Employees
+                  </Button>
+                </div>
               </div>
             </section>
           ) : (
@@ -157,15 +182,23 @@ const LandingPage = () => {
                   <span className="text-blue-500">Employd</span>?
                 </h2>
                 <p className="text-lg text-gray-400">
-                  Login now to take control of your employee data and simplify
+                  Join us to take control of your employee data and simplify
                   your HR workflow.
                 </p>
-                <Button
-                  onClick={handleOpenLoginModal}
-                  className="px-8 py-3 text-lg font-semibold w-full sm:w-auto bg-blue-500 hover:bg-blue-600 focus:ring-blue-500 focus:ring-offset-gray-900"
-                >
-                  Login to Your Dashboard
-                </Button>
+                <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                  <Button
+                    onClick={handleOpenLoginModal}
+                    className="px-8 py-3 text-lg font-semibold w-full sm:w-auto bg-blue-500 hover:bg-blue-600 focus:ring-blue-500 focus:ring-offset-gray-900"
+                  >
+                    Login
+                  </Button>
+                  <Button
+                    onClick={handleSignUp}
+                    className="px-8 py-3 text-lg font-semibold w-full sm:w-auto bg-gray-700 hover:bg-blue-500 focus:ring-blue-600 focus:ring-offset-gray-900"
+                  >
+                    Sign Up
+                  </Button>
+                </div>
               </div>
             </section>
           )}
