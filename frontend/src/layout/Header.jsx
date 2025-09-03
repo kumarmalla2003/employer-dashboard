@@ -9,7 +9,8 @@ const Header = () => {
   const location = useLocation();
   const { logout } = useAuth(); // Use the logout function from the context
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] =
+    useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [underlineStyle, setUnderlineStyle] = useState({});
@@ -93,8 +94,10 @@ const Header = () => {
     // The ProtectedRoute in App.jsx will automatically handle the redirection to the landing page
   };
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  // Dedicated functions for the Reset Password Modal
+  const openResetPasswordModal = () => setIsResetPasswordModalOpen(true);
+  const closeResetPasswordModal = () => setIsResetPasswordModalOpen(false);
+
   const toggleProfileMenu = () => setIsProfileMenuOpen(!isProfileMenuOpen);
   const toggleMobileNav = () => setIsMobileNavOpen(!isMobileNavOpen);
 
@@ -205,7 +208,7 @@ const Header = () => {
             <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg px-2 py-2 z-20 ring-1 ring-black ring-opacity-5">
               <button
                 onClick={() => {
-                  openModal();
+                  openResetPasswordModal();
                   setIsProfileMenuOpen(false);
                 }}
                 className="block px-4 py-2 text-sm text-gray-300 w-full text-left hover:bg-gray-700 hover:text-gray-50 cursor-pointer"
@@ -225,11 +228,14 @@ const Header = () => {
           )}
         </div>
       </div>
-      <ResetPasswordModal show={isModalOpen} onClose={closeModal} />
+      <ResetPasswordModal
+        show={isResetPasswordModalOpen}
+        onClose={closeResetPasswordModal}
+      />
       <MobileNav
         isOpen={isMobileNavOpen}
         onClose={() => setIsMobileNavOpen(false)}
-        openModal={openModal}
+        openResetPasswordModal={openResetPasswordModal}
       />
     </header>
   );

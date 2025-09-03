@@ -115,7 +115,7 @@ const LoginModal = ({ isOpen, onClose }) => {
               className="w-full text-gray-50 bg-blue-500 hover:bg-blue-600 focus:ring-blue-500 focus:ring-offset-gray-900"
               disabled={isLoading}
             >
-              {isLoading ? "Signing In..." : "Sign In"}
+              {isLoading ? "Logging In..." : "Log In"}
             </Button>
           </div>
         </form>

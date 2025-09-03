@@ -3,14 +3,16 @@ import { Link, useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import Footer from "../layout/Footer";
 import LoginModal from "../components/LoginModal";
-import SignupModal from "../components/SignupModal"; // Import the new SignupModal
+import SignupModal from "../components/SignupModal";
 import Header from "../layout/Header";
 import { useAuth } from "../context/AuthContext";
+import MobileNav from "../components/MobileNav";
 
 const LandingPage = () => {
   const navigate = useNavigate();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [isSignupModalOpen, setIsSignupModalOpen] = useState(false); // New state for SignupModal
+  const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const { isLoggedIn } = useAuth();
 
   const handleOpenLoginModal = () => {
@@ -21,7 +23,6 @@ const LandingPage = () => {
     setIsLoginModalOpen(false);
   };
 
-  // New functions to handle the SignupModal
   const handleOpenSignupModal = () => {
     setIsSignupModalOpen(true);
   };
@@ -48,6 +49,7 @@ const LandingPage = () => {
           style={{ height: "5rem" }}
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
+            {/* Desktop Logo and Navigation */}
             <Link
               to="/"
               className="hidden sm:flex items-center space-x-3 text-3xl font-bold text-blue-500 hover:text-blue-400 transition-colors"
@@ -59,23 +61,7 @@ const LandingPage = () => {
               />
               <span className="inline">Employd</span>
             </Link>
-            <Link
-              to="/"
-              className="sm:hidden flex items-center space-x-3 text-3xl font-bold text-blue-500 hover:text-blue-400 transition-colors"
-            >
-              <img
-                src="../../logo.png"
-                alt="Employer Dashboard"
-                className="w-12 h-12"
-              />
-            </Link>
-            <Link
-              to="/"
-              className="sm:hidden flex items-center space-x-3 text-3xl font-bold text-blue-500 hover:text-blue-400 transition-colors"
-            >
-              <span className="inline">Employd</span>
-            </Link>
-            <nav className="flex items-center space-x-2 sm:space-x-4">
+            <nav className="hidden sm:flex items-center space-x-2 sm:space-x-4">
               <Button
                 onClick={handleOpenLoginModal}
                 className="text-gray-50 bg-blue-500 hover:bg-blue-600 focus:ring-blue-500 focus:ring-offset-gray-900"
@@ -83,13 +69,44 @@ const LandingPage = () => {
                 Log In
               </Button>
               <Button
-                onClick={handleOpenSignupModal} // Changed to open SignupModal
-                className="text-gray-50
-                  bg-gray-700 hover:bg-blue-500 focus:ring-blue-600 focus:ring-offset-gray-900"
+                onClick={handleOpenSignupModal}
+                className="text-gray-50 bg-gray-700 hover:bg-blue-500 focus:ring-blue-600 focus:ring-offset-gray-900"
               >
                 Sign Up
               </Button>
             </nav>
+
+            {/* Mobile Nav */}
+            <div className="sm:hidden flex items-center justify-center relative w-full">
+              <button
+                onClick={() => setIsMobileNavOpen(true)}
+                className="absolute left-0 text-gray-400 hover:text-gray-200 focus:outline-none focus:text-gray-200 transition-colors"
+                aria-label="Open mobile menu"
+              >
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+              </button>
+              <Link
+                to="/"
+                className="flex items-center space-x-3 text-3xl font-bold text-blue-500 hover:text-blue-400 transition-colors"
+              >
+                <img
+                  src="../../logo.png"
+                  alt="Employer Dashboard"
+                  className="w-12 h-12"
+                />
+                <span className="inline">Employd</span>
+              </Link>
+            </div>
           </div>
         </header>
       )}
@@ -213,6 +230,12 @@ const LandingPage = () => {
           <SignupModal
             isOpen={isSignupModalOpen}
             onClose={handleCloseSignupModal}
+          />
+          <MobileNav
+            isOpen={isMobileNavOpen}
+            onClose={() => setIsMobileNavOpen(false)}
+            openLoginModal={handleOpenLoginModal}
+            openSignupModal={handleOpenSignupModal}
           />
         </>
       )}
