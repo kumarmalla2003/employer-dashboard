@@ -3,13 +3,15 @@ import { Link, useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import Footer from "../layout/Footer";
 import LoginModal from "../components/LoginModal";
-import Header from "../layout/Header"; // Import the Header component
-import { useAuth } from "../context/AuthContext"; // Import useAuth hook
+import SignupModal from "../components/SignupModal"; // Import the new SignupModal
+import Header from "../layout/Header";
+import { useAuth } from "../context/AuthContext";
 
 const LandingPage = () => {
   const navigate = useNavigate();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const { isLoggedIn } = useAuth(); // Get the login state from the context
+  const [isSignupModalOpen, setIsSignupModalOpen] = useState(false); // New state for SignupModal
+  const { isLoggedIn } = useAuth();
 
   const handleOpenLoginModal = () => {
     setIsLoginModalOpen(true);
@@ -19,25 +21,25 @@ const LandingPage = () => {
     setIsLoginModalOpen(false);
   };
 
+  // New functions to handle the SignupModal
+  const handleOpenSignupModal = () => {
+    setIsSignupModalOpen(true);
+  };
+
+  const handleCloseSignupModal = () => {
+    setIsSignupModalOpen(false);
+  };
+
   const handleGoToDashboard = () => {
     navigate("/dashboard");
   };
 
-  // Function to handle signup
-  const handleSignUp = () => {
-    // Navigate to the signup page or show a signup modal
-    console.log("Navigating to signup...");
-    // navigate("/signup"); // Example navigation
-  };
-
-  // Function to handle navigating to the employees page
   const handleGoToEmployees = () => {
     navigate("/employees");
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-950 text-gray-200">
-      {/* Conditionally render the header based on login status */}
       {isLoggedIn ? (
         <Header />
       ) : (
@@ -78,10 +80,10 @@ const LandingPage = () => {
                 onClick={handleOpenLoginModal}
                 className="text-gray-50 bg-blue-500 hover:bg-blue-600 focus:ring-blue-500 focus:ring-offset-gray-900"
               >
-                Login
+                Log In
               </Button>
               <Button
-                onClick={handleSignUp}
+                onClick={handleOpenSignupModal} // Changed to open SignupModal
                 className="text-gray-50
                   bg-gray-700 hover:bg-blue-500 focus:ring-blue-600 focus:ring-offset-gray-900"
               >
@@ -94,7 +96,6 @@ const LandingPage = () => {
 
       <main className="flex-grow pt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Hero Section (remains the same) */}
           <section className="py-16 text-center">
             <div className="max-w-4xl mx-auto space-y-8">
               <h1 className="text-4xl sm:text-6xl font-extrabold text-white leading-tight">
@@ -109,7 +110,6 @@ const LandingPage = () => {
             </div>
           </section>
 
-          {/* Features and Benefits Section (remains the same) */}
           <section className="py-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12 text-gray-50">
               Key Features & Benefits
@@ -147,7 +147,6 @@ const LandingPage = () => {
             </div>
           </section>
 
-          {/* Conditionally render the CTA section */}
           {isLoggedIn ? (
             <section className="py-16 text-center">
               <div className="max-w-3xl mx-auto bg-gray-900 p-10 rounded-lg shadow-2xl border border-gray-800 space-y-6">
@@ -189,10 +188,10 @@ const LandingPage = () => {
                     onClick={handleOpenLoginModal}
                     className="px-8 py-3 text-lg font-semibold w-full sm:w-auto bg-blue-500 hover:bg-blue-600 focus:ring-blue-500 focus:ring-offset-gray-900"
                   >
-                    Login
+                    Log In
                   </Button>
                   <Button
-                    onClick={handleSignUp}
+                    onClick={handleOpenSignupModal}
                     className="px-8 py-3 text-lg font-semibold w-full sm:w-auto bg-gray-700 hover:bg-blue-500 focus:ring-blue-600 focus:ring-offset-gray-900"
                   >
                     Sign Up
@@ -204,10 +203,18 @@ const LandingPage = () => {
         </div>
       </main>
 
-      {/* Reusable Footer Component */}
       <Footer />
       {!isLoggedIn && (
-        <LoginModal isOpen={isLoginModalOpen} onClose={handleCloseLoginModal} />
+        <>
+          <LoginModal
+            isOpen={isLoginModalOpen}
+            onClose={handleCloseLoginModal}
+          />
+          <SignupModal
+            isOpen={isSignupModalOpen}
+            onClose={handleCloseSignupModal}
+          />
+        </>
       )}
     </div>
   );

@@ -63,11 +63,9 @@ const LoginModal = ({ isOpen, onClose }) => {
         </button>
         <div className="text-center">
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-50">
-            Sign In
+            Log In
           </h2>
-          <p className="mt-2 text-md text-gray-400">
-            Enter your credentials to access the dashboard.
-          </p>
+          <p className="mt-2 text-md text-gray-400">Enter your credentials.</p>
         </div>
         <hr className="border-gray-700" />
         <form onSubmit={handleLogin} className="space-y-6">

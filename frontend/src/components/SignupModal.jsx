@@ -1,62 +1,45 @@
 import React, { useState } from "react";
-import Button from "./Button.jsx";
+import Button from "./Button";
 
-const ResetPasswordModal = ({ show, onClose }) => {
-  const [oldPassword, setOldPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+const SignupModal = ({ isOpen, onClose }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handlePasswordReset = (e) => {
+  const handleSignup = (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
     setIsLoading(true);
 
-    const correctOldPassword = "123"; // Simulated check for old password
-
-    if (oldPassword !== correctOldPassword) {
-      setError("Incorrect old password.");
-      setIsLoading(false);
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      setError("New passwords do not match. Please try again.");
-      setIsLoading(false);
-      return;
-    }
-
-    if (newPassword.length < 6) {
-      setError("Password must be at least 6 characters long.");
-      setIsLoading(false);
-      return;
-    }
-
-    // Simulate an API call with a delay
+    // Simulate an API call to a backend registration endpoint
     setTimeout(() => {
-      console.log("Password reset successful!");
-      setSuccess("Your password has been reset successfully!");
-      setOldPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
+      // In a real application, you would send a POST request here
+      // to your backend to create a new user account.
+      console.log("Attempting to sign up with:", { email, password });
+
+      // Simulate a successful signup
+      setSuccess("Account created successfully! You can now log in.");
+      // Clear form fields
+      setEmail("");
+      setPassword("");
       setIsLoading(false);
     }, 1500); // 1.5-second delay to simulate network latency
   };
 
-  if (!show) {
+  if (!isOpen) {
     return null;
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-4 z-50 overflow-y-auto">
+    <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
       {/* Semi-transparent backdrop with blur effect */}
       <div className="fixed inset-0 backdrop-blur-md" onClick={onClose}></div>
 
       {/* Modal content container */}
-      <div className="relative w-full max-w-sm sm:max-w-md p-6 sm:p-12 my-8 space-y-6 bg-gray-900 rounded-lg shadow-2xl border border-gray-800 z-50">
+      <div className="relative w-full max-w-sm sm:max-w-md p-6 sm:p-12 space-y-6 bg-gray-900 rounded-lg shadow-2xl border border-gray-800 z-50">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 transition-colors"
@@ -79,72 +62,54 @@ const ResetPasswordModal = ({ show, onClose }) => {
         </button>
         <div className="text-center">
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-50">
-            Reset Password
+            Sign Up
           </h2>
           <p className="mt-2 text-md text-gray-400">
-            Enter your current and new password.
+            Create an account to get started.
           </p>
         </div>
         <hr className="border-gray-700" />
-        <form onSubmit={handlePasswordReset} className="space-y-6">
+        <form onSubmit={handleSignup} className="space-y-6">
           {error && <div className="text-red-400 text-center">{error}</div>}
           {success && (
             <div className="text-green-400 text-center">{success}</div>
           )}
           <div>
             <label
-              htmlFor="oldPassword"
+              htmlFor="signup-email"
               className="block text-sm font-medium text-gray-200"
             >
-              Old Password
+              Email address
             </label>
             <input
-              id="oldPassword"
-              name="oldPassword"
-              type="password"
-              placeholder="Enter old password"
+              id="signup-email"
+              name="email"
+              type="email"
+              autoComplete="off"
+              placeholder="Enter email"
               required
               className="text-gray-300 bg-gray-800 w-full px-4 py-2 mt-1 border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              value={oldPassword}
-              onChange={(e) => setOldPassword(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               disabled={isLoading || success}
             />
           </div>
           <div>
             <label
-              htmlFor="newPassword"
+              htmlFor="signup-password"
               className="block text-sm font-medium text-gray-200"
             >
-              New Password
+              Password
             </label>
             <input
-              id="newPassword"
-              name="newPassword"
+              id="signup-password"
+              name="password"
               type="password"
-              placeholder="Enter new password"
+              placeholder="Enter password"
               required
               className="text-gray-300 bg-gray-800 w-full px-4 py-2 mt-1 border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              disabled={isLoading || success}
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="confirmPassword"
-              className="block text-sm font-medium text-gray-200"
-            >
-              Confirm New Password
-            </label>
-            <input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              placeholder="Confirm new password"
-              required
-              className="text-gray-300 bg-gray-800 w-full px-4 py-2 mt-1 border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               disabled={isLoading || success}
             />
           </div>
@@ -154,7 +119,7 @@ const ResetPasswordModal = ({ show, onClose }) => {
               className="w-full text-gray-50 bg-blue-500 hover:bg-blue-600 focus:ring-blue-500 focus:ring-offset-gray-900"
               disabled={isLoading || success}
             >
-              {isLoading ? "Updating..." : "Update Password"}
+              {isLoading ? "Creating Account..." : "Sign Up"}
             </Button>
           </div>
         </form>
@@ -163,4 +128,4 @@ const ResetPasswordModal = ({ show, onClose }) => {
   );
 };
 
-export default ResetPasswordModal;
+export default SignupModal;
