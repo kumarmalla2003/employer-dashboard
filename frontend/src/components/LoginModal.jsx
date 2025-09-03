@@ -1,28 +1,33 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Button from "./Button";
+import { useAuth } from "../context/AuthContext"; // Import the useAuth hook
 
 const LoginModal = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuth(); // Get the login function from the context
 
   const handleLogin = (e) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
 
-    // Predefined credentials for single-user authentication
-    const correctEmail = "em@il";
-    const correctPassword = "123";
+    // Simulate an API call with a delay
+    setTimeout(() => {
+      const correctEmail = "em@il";
+      const correctPassword = "123";
 
-    if (email === correctEmail && password === correctPassword) {
-      console.log("Login successful!");
-      onClose(); // Close the modal on successful login
-      navigate("/dashboard");
-    } else {
-      setError("Invalid credentials");
-    }
+      if (email === correctEmail && password === correctPassword) {
+        console.log("Login successful!");
+        login(); // Call the login function from the context
+        onClose(); // Close the modal
+      } else {
+        setError("Invalid credentials");
+      }
+      setIsLoading(false);
+    }, 1000); // 1-second delay to simulate a network request
   };
 
   if (!isOpen) {
@@ -84,6 +89,7 @@ const LoginModal = ({ isOpen, onClose }) => {
               className="text-gray-300 bg-gray-800 w-full px-4 py-2 mt-1 border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              disabled={isLoading}
             />
           </div>
           <div>
@@ -102,14 +108,16 @@ const LoginModal = ({ isOpen, onClose }) => {
               className="text-gray-300 bg-gray-800 w-full px-4 py-2 mt-1 border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading}
             />
           </div>
           <div>
             <Button
               type="submit"
               className="w-full text-gray-50 bg-blue-500 hover:bg-blue-600 focus:ring-blue-500 focus:ring-offset-gray-900"
+              disabled={isLoading}
             >
-              Sign In
+              {isLoading ? "Signing In..." : "Sign In"}
             </Button>
           </div>
         </form>

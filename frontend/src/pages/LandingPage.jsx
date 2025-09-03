@@ -4,13 +4,12 @@ import Button from "../components/Button";
 import Footer from "../layout/Footer";
 import LoginModal from "../components/LoginModal";
 import Header from "../layout/Header"; // Import the Header component
+import { useAuth } from "../context/AuthContext"; // Import useAuth hook
 
 const LandingPage = () => {
   const navigate = useNavigate();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-
-  // Hardcoded for demonstration. This will be replaced by a proper auth check later.
-  const isLoggedIn = false;
+  const { isLoggedIn } = useAuth(); // Get the login state from the context
 
   const handleOpenLoginModal = () => {
     setIsLoginModalOpen(true);

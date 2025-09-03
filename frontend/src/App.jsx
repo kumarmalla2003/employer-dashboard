@@ -6,16 +6,12 @@ import EmployeeListPage from "./pages/EmployeeListPage.jsx";
 import AddEditEmployeePage from "./pages/AddEditEmployeePage.jsx";
 import EmployeeDetailsPage from "./pages/EmployeeDetailsPage.jsx";
 import LandingPage from "./pages/LandingPage.jsx";
-
-// This check is a placeholder for a real authentication system
-const isAuthenticated = () => {
-  return (
-    window.location.pathname !== "/" && window.location.pathname !== "/login"
-  );
-};
+import { AuthProvider, useAuth } from "./context/AuthContext.jsx"; // Import AuthProvider and useAuth
 
 const ProtectedRoute = ({ children }) => {
-  if (!isAuthenticated()) {
+  const { isLoggedIn } = useAuth(); // Use the state from AuthContext
+
+  if (!isLoggedIn) {
     return <Navigate to="/" replace />;
   }
   return children;
@@ -24,21 +20,35 @@ const ProtectedRoute = ({ children }) => {
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
+      <AuthProvider>
+        {" "}
+        {/* Wrap the app with the AuthProvider */}
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
 
-        {/* Protected routes wrapped in the Layout component */}
-        <Route element={<Layout />}>
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/employees" element={<EmployeeListPage />} />
-          <Route path="/add-employee" element={<AddEditEmployeePage />} />
-          <Route path="/employees/edit/:id" element={<AddEditEmployeePage />} />
-          <Route path="/employees/:id" element={<EmployeeDetailsPage />} />
-        </Route>
+          {/* Protected routes wrapped in the ProtectedRoute component */}
+          <Route
+            element={
+              <ProtectedRoute>
+                {" "}
+                <Layout />{" "}
+              </ProtectedRoute>
+            }
+          >
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/employees" element={<EmployeeListPage />} />
+            <Route path="/add-employee" element={<AddEditEmployeePage />} />
+            <Route
+              path="/employees/edit/:id"
+              element={<AddEditEmployeePage />}
+            />
+            <Route path="/employees/:id" element={<EmployeeDetailsPage />} />
+          </Route>
 
-        {/* Catch-all route for unmatched paths */}
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
+          {/* Catch-all route for unmatched paths */}
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

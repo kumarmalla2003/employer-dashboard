@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate, Link, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import ResetPasswordModal from "../components/ResetPasswordModal.jsx";
 import MobileNav from "../components/MobileNav.jsx";
 import Button from "../components/Button.jsx";
+import { useAuth } from "../context/AuthContext.jsx"; // Import the useAuth hook
 
 const Header = () => {
-  const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useAuth(); // Use the logout function from the context
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -88,7 +89,8 @@ const Header = () => {
 
   const handleLogout = () => {
     console.log("User logged out!");
-    navigate("/login");
+    logout(); // Call the logout function from AuthContext
+    // The ProtectedRoute in App.jsx will automatically handle the redirection to the landing page
   };
 
   const openModal = () => setIsModalOpen(true);
