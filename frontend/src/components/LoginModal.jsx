@@ -1,33 +1,28 @@
 import React, { useState } from "react";
 import Button from "./Button";
-import { useAuth } from "../context/AuthContext"; // Import the useAuth hook
+import { useAuth } from "../context/AuthContext";
 
 const LoginModal = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth(); // Get the login function from the context
+  const { login } = useAuth();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
-    // Simulate an API call with a delay
-    setTimeout(() => {
-      const correctEmail = "em@il";
-      const correctPassword = "123";
+    const result = await login(email, password);
 
-      if (email === correctEmail && password === correctPassword) {
-        console.log("Login successful!");
-        login(); // Call the login function from the context
-        onClose(); // Close the modal
-      } else {
-        setError("Invalid credentials");
-      }
-      setIsLoading(false);
-    }, 1000); // 1-second delay to simulate a network request
+    if (result.success) {
+      console.log("Login successful!");
+      onClose();
+    } else {
+      setError(result.message);
+    }
+    setIsLoading(false);
   };
 
   if (!isOpen) {

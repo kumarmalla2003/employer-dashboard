@@ -1,4 +1,5 @@
-import React, { createContext, useState, useContext } from "react";
+// src/context/AuthContext.jsx
+import React, { createContext, useState, useContext, useEffect } from "react";
 
 // Create the context
 const AuthContext = createContext(null);
@@ -7,19 +8,71 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const login = () => {
-    setIsLoggedIn(true);
-    // In a real app, this is where you'd store a token (e.g., in localStorage)
-    // localStorage.setItem('token', 'your-auth-token');
+  // Check for the authentication cookie on initial load
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      // In a real app, you would have a /check-auth endpoint
+      // For now, we'll assume a successful login sets the cookie,
+      // and a simple page reload with the cookie means the user is still authenticated.
+      // This is a simplified check for the demo.
+      try {
+        const response = await fetch("http://localhost:8000/api/check-auth", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if (response.ok) {
+          setIsLoggedIn(true);
+        } else {
+          setIsLoggedIn(false);
+        }
+      } catch (error) {
+        console.error("Failed to check auth status:", error);
+        setIsLoggedIn(false);
+      }
+    };
+    // Let's add an empty dependency array to run only once.
+  }, []);
+
+  const login = async (email, password) => {
+    try {
+      const response = await fetch("http://localhost:8000/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        setIsLoggedIn(true);
+        return { success: true, message: "Login successful" };
+      } else {
+        const errorData = await response.json();
+        return { success: false, message: errorData.error };
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+      return { success: false, message: "Failed to connect to the server." };
+    }
   };
 
-  const logout = () => {
-    setIsLoggedIn(false);
-    // In a real app, this is where you'd remove the token
-    // localStorage.removeItem('token');
+  const logout = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/api/logout", {
+        method: "POST",
+      });
+      if (response.ok) {
+        setIsLoggedIn(false);
+        // Optional: Redirect to landing page after logout
+        // navigate('/');
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
-  // The value provided to children of this provider
   const value = { isLoggedIn, login, logout };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -99,6 +99,45 @@ class LogoutHandler(BaseHandler):
         self.set_status(200)
         self.write({"message": "Logged out successfully."})
 
+class ResetPasswordHandler(BaseHandler):
+    def post(self):
+        try:
+            data = json.loads(self.request.body)
+            email = data.get('email')
+            old_password = data.get('old_password')
+            new_password = data.get('new_password')
+
+            if not email or not old_password or not new_password:
+                self.set_status(400)
+                self.write({"error": "Email, old password, and new password are required."})
+                return
+
+            cursor = db.cursor(dictionary=True)
+            query = "SELECT id, password_hash FROM users WHERE email = %s"
+            cursor.execute(query, (email,))
+            user = cursor.fetchone()
+            cursor.close()
+
+            if not user or not bcrypt.checkpw(old_password.encode('utf-8'), user['password_hash'].encode('utf-8')):
+                self.set_status(401)
+                self.write({"error": "Invalid email or old password."})
+                return
+
+            hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+            
+            cursor = db.cursor()
+            update_query = "UPDATE users SET password_hash = %s WHERE id = %s"
+            cursor.execute(update_query, (hashed_password, user['id']))
+            db.commit()
+            cursor.close()
+
+            self.set_status(200)
+            self.write({"message": "Password updated successfully."})
+
+        except Exception as e:
+            self.set_status(500)
+            self.write({"error": f"Internal server error: {e}"})
+
 # --- Employee Management Handlers ---
 class EmployeeHandler(BaseHandler):
     def prepare(self):
@@ -266,6 +305,7 @@ def make_app():
         (r"/api/signup", SignupHandler),
         (r"/api/login", LoginHandler),
         (r"/api/logout", LogoutHandler),
+        (r"/api/reset-password", ResetPasswordHandler), # Add this line
         (r"/api/employees", EmployeeHandler),
         (r"/api/employees/(?P<employee_id>[0-9]+)", EmployeeHandler),
     ], 

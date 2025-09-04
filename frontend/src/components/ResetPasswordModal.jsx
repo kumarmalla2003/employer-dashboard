@@ -1,7 +1,9 @@
+// src/components/ResetPasswordModal.jsx
 import React, { useState } from "react";
 import Button from "./Button.jsx";
 
 const ResetPasswordModal = ({ show, onClose }) => {
+  const [email, setEmail] = useState(""); // Add this line
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -9,19 +11,11 @@ const ResetPasswordModal = ({ show, onClose }) => {
   const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handlePasswordReset = (e) => {
+  const handlePasswordReset = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
     setIsLoading(true);
-
-    const correctOldPassword = "123"; // Simulated check for old password
-
-    if (oldPassword !== correctOldPassword) {
-      setError("Incorrect old password.");
-      setIsLoading(false);
-      return;
-    }
 
     if (newPassword !== confirmPassword) {
       setError("New passwords do not match. Please try again.");
@@ -35,15 +29,34 @@ const ResetPasswordModal = ({ show, onClose }) => {
       return;
     }
 
-    // Simulate an API call with a delay
-    setTimeout(() => {
-      console.log("Password reset successful!");
-      setSuccess("Your password has been reset successfully!");
-      setOldPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
+    try {
+      const response = await fetch("http://localhost:8000/api/reset-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email, // Add this line
+          old_password: oldPassword,
+          new_password: newPassword,
+        }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setSuccess(data.message);
+        setEmail("");
+        setOldPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      } else {
+        setError(data.error);
+      }
+    } catch (err) {
+      setError("Failed to connect to the server.");
+    } finally {
       setIsLoading(false);
-    }, 1500); // 1.5-second delay to simulate network latency
+    }
   };
 
   if (!show) {
@@ -91,6 +104,25 @@ const ResetPasswordModal = ({ show, onClose }) => {
           {success && (
             <div className="text-green-400 text-center">{success}</div>
           )}
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-200"
+            >
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="Enter your email"
+              required
+              className="text-gray-300 bg-gray-800 w-full px-4 py-2 mt-1 border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={isLoading || success}
+            />
+          </div>
           <div>
             <label
               htmlFor="oldPassword"

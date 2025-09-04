@@ -8,25 +8,34 @@ const SignupModal = ({ isOpen, onClose }) => {
   const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
     setIsLoading(true);
 
-    // Simulate an API call to a backend registration endpoint
-    setTimeout(() => {
-      // In a real application, you would send a POST request here
-      // to your backend to create a new user account.
-      console.log("Attempting to sign up with:", { email, password });
+    try {
+      const response = await fetch("http://localhost:8000/api/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-      // Simulate a successful signup
-      setSuccess("Account created successfully! You can now log in.");
-      // Clear form fields
-      setEmail("");
-      setPassword("");
+      const data = await response.json();
+      if (response.ok) {
+        setSuccess(data.message);
+        setEmail("");
+        setPassword("");
+      } else {
+        setError(data.error);
+      }
+    } catch (err) {
+      setError("Failed to connect to the server.");
+    } finally {
       setIsLoading(false);
-    }, 1500); // 1.5-second delay to simulate network latency
+    }
   };
 
   if (!isOpen) {
