@@ -1,50 +1,55 @@
-// src/components/EmployeeListPage.jsx
-import React, { useState } from "react";
+// src/pages/EmployeeListPage.jsx
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 
 const EmployeeListPage = () => {
   const navigate = useNavigate();
-
-  // Dummy employee data for demonstration.
-  // In the final version, this data will be fetched from the backend.
-  const [employees, setEmployees] = useState([
-    {
-      id: "EMP001",
-      name: "John Doe",
-      position: "Software Engineer",
-      department: "Engineering",
-    },
-    {
-      id: "EMP002",
-      name: "Jane Smith",
-      position: "Product Manager",
-      department: "Product",
-    },
-    {
-      id: "EMP003",
-      name: "Peter Jones",
-      position: "UX Designer",
-      department: "Design",
-    },
-  ]);
-
+  const [employees, setEmployees] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/employees", {
+          credentials: "include",
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch employees. Please log in.");
+        }
+        const data = await response.json();
+        setEmployees(data);
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+    fetchEmployees();
+  }, []);
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
   };
 
   const handleEdit = (id) => {
-    // Navigate to the Add/Edit page with the employee ID
     navigate(`/employees/edit/${id}`);
   };
 
-  const handleDelete = (id) => {
-    // In a real app, this would make a DELETE API call
-    console.log(`Deleting employee with ID: ${id}`);
-    const updatedEmployees = employees.filter((emp) => emp.id !== id);
-    setEmployees(updatedEmployees);
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this employee?")) {
+      try {
+        const response = await fetch(`http://localhost:8000/api/employees/${id}`, {
+          method: "DELETE",
+          credentials: "include",
+        });
+        if (!response.ok) {
+          throw new Error("Failed to delete employee.");
+        }
+        setEmployees(employees.filter((emp) => emp.id !== id));
+      } catch (err) {
+        setError(err.message);
+      }
+    }
   };
 
   const handleView = (id) => {
@@ -53,13 +58,12 @@ const EmployeeListPage = () => {
 
   const filteredEmployees = employees.filter(
     (employee) =>
-      employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      employee.id.toLowerCase().includes(searchTerm.toLowerCase())
+      `${employee.firstName} ${employee.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      String(employee.id).toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 p-4 sm:p-6 lg:p-8">
-      {/* Updated Heading Section */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-3xl sm:text-4xl font-bold text-gray-50">
           Employees
@@ -73,7 +77,8 @@ const EmployeeListPage = () => {
       </div>
       <hr className="border-gray-700 mb-6" />
 
-      {/* Search Input */}
+      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+
       <div className="mb-6">
         <input
           type="text"
@@ -132,14 +137,14 @@ const EmployeeListPage = () => {
                   >
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                       <div className="text-sm font-medium text-gray-200">
-                        {employee.name}
+                        {`${employee.firstName} ${employee.lastName}`}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 text-center">
                       {employee.id}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 text-center">
-                      {employee.position}
+                      {employee.designation}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 text-center">
                       {employee.department}

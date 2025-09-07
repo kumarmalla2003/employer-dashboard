@@ -5,15 +5,18 @@ import mysql.connector
 import tornado.web
 import tornado.ioloop
 import bcrypt
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # --- Database Setup ---
 def create_db_connection():
     try:
         db_connection = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="KumarMalla@1993",
-            database="employer_dashboard"
+            host=os.environ.get("DB_HOST"),
+            user=os.environ.get("DB_USER"),
+            password=os.environ.get("DB_PASSWORD"),
+            database=os.environ.get("DB_NAME")
         )
         print("Database connection successful!")
         return db_connection
@@ -145,24 +148,25 @@ class EmployeeHandler(BaseHandler):
             self.set_status(401)
             self.write({"error": "Unauthorized"})
             self.finish()
-            
+
     def get(self, employee_id=None):
         try:
+            user_id = self.get_current_user().decode('utf-8')
             cursor = db.cursor(dictionary=True)
             if employee_id:
-                query = "SELECT id, firstName, lastName, email, phone, department, designation, salary, hireDate, dateOfBirth, address, city, state, postalCode, country, emergencyContactName, emergencyContactPhone FROM employees WHERE id = %s"
-                cursor.execute(query, (employee_id,))
+                query = "SELECT id, firstName, lastName, email, phone, department, designation, salary, hireDate, dateOfBirth, address, city, state, postalCode, country, emergencyContactName, emergencyContactPhone FROM employees WHERE id = %s AND user_id = %s"
+                cursor.execute(query, (employee_id, user_id))
                 employee = cursor.fetchone()
                 if employee:
-                    self.write(json.dumps(employee, default=str)) # Use json.dumps for proper serialization
+                    self.write(json.dumps(employee, default=str))
                 else:
                     self.set_status(404)
-                    self.write({"error": "Employee not found."})
+                    self.write({"error": "Employee not found or you don't have permission to view it."})
             else:
-                query = "SELECT id, firstName, lastName, email, phone, department, designation, salary, hireDate, dateOfBirth, address, city, state, postalCode, country, emergencyContactName, emergencyContactPhone FROM employees"
-                cursor.execute(query)
+                query = "SELECT id, firstName, lastName, email, phone, department, designation, salary, hireDate, dateOfBirth, address, city, state, postalCode, country, emergencyContactName, emergencyContactPhone FROM employees WHERE user_id = %s"
+                cursor.execute(query, (user_id,))
                 employees = cursor.fetchall()
-                self.write(json.dumps(employees, default=str)) # Use json.dumps for proper serialization
+                self.write(json.dumps(employees, default=str))
             cursor.close()
             self.set_status(200)
         except Exception as e:
@@ -171,52 +175,33 @@ class EmployeeHandler(BaseHandler):
 
     def post(self):
         try:
+            user_id = self.get_current_user().decode('utf-8')
             data = json.loads(self.request.body)
-            firstName = data.get('firstName')
-            lastName = data.get('lastName')
-            email = data.get('email')
-            phone = data.get('phone')
-            department = data.get('department')
-            designation = data.get('designation')
-            salary = data.get('salary')
-            hireDate = data.get('hireDate')
-            dateOfBirth = data.get('dateOfBirth')
-            address = data.get('address')
-            city = data.get('city')
-            state = data.get('state')
-            postalCode = data.get('postalCode')
-            country = data.get('country')
-            emergencyContactName = data.get('emergencyContactName')
-            emergencyContactPhone = data.get('emergencyContactPhone')
 
-            if not firstName or not lastName or not email:
+            required_fields = [
+                'firstName', 'lastName', 'email', 'phone', 'department',
+                'designation', 'salary', 'hireDate', 'dateOfBirth', 'address',
+                'city', 'state', 'postalCode', 'country',
+                'emergencyContactName', 'emergencyContactPhone'
+            ]
+
+            if not all(field in data and data[field] for field in required_fields):
                 self.set_status(400)
-                self.write({"error": "First name, last name, and email are required."})
+                self.write({"error": "All employee fields are required."})
                 return
 
             cursor = db.cursor()
             query = """
             INSERT INTO employees 
-            (firstName, lastName, email, phone, department, designation, salary, hireDate, dateOfBirth, address, city, state, postalCode, country, emergencyContactName, emergencyContactPhone) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            (firstName, lastName, email, phone, department, designation, salary, hireDate, dateOfBirth, address, city, state, postalCode, country, emergencyContactName, emergencyContactPhone, user_id)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             cursor.execute(query, (
-                firstName,
-                lastName,
-                email,
-                phone,
-                department,
-                designation,
-                salary,
-                hireDate,
-                dateOfBirth,
-                address,
-                city,
-                state,
-                postalCode,
-                country,
-                emergencyContactName,
-                emergencyContactPhone
+                data['firstName'], data['lastName'], data['email'], data['phone'],
+                data['department'], data['designation'], data['salary'], data['hireDate'],
+                data['dateOfBirth'], data['address'], data['city'], data['state'],
+                data['postalCode'], data['country'], data['emergencyContactName'],
+                data['emergencyContactPhone'], user_id
             ))
             db.commit()
             new_id = cursor.lastrowid
@@ -226,7 +211,7 @@ class EmployeeHandler(BaseHandler):
             self.write({"message": "Employee created successfully.", "id": new_id})
         except mysql.connector.Error as err:
             self.set_status(409)
-            self.write({"error": "This email is already registered."})
+            self.write({"error": "This email is already registered for an employee."})
             db.rollback()
         except Exception as e:
             self.set_status(500)
@@ -234,67 +219,69 @@ class EmployeeHandler(BaseHandler):
 
     def put(self, employee_id):
         try:
+            user_id = self.get_current_user().decode('utf-8')
             data = json.loads(self.request.body)
-            firstName = data.get('firstName')
-            lastName = data.get('lastName')
-            email = data.get('email')
-            phone = data.get('phone')
-            department = data.get('department')
-            designation = data.get('designation')
-            salary = data.get('salary')
-            hireDate = data.get('hireDate')
-            dateOfBirth = data.get('dateOfBirth')
-            address = data.get('address')
-            city = data.get('city')
-            state = data.get('state')
-            postalCode = data.get('postalCode')
-            country = data.get('country')
-            emergencyContactName = data.get('emergencyContactName')
-            emergencyContactPhone = data.get('emergencyContactPhone')
 
-            if not firstName or not lastName or not email:
+            required_fields = [
+                'firstName', 'lastName', 'email', 'phone', 'department',
+                'designation', 'salary', 'hireDate', 'dateOfBirth', 'address',
+                'city', 'state', 'postalCode', 'country',
+                'emergencyContactName', 'emergencyContactPhone'
+            ]
+
+            if not all(field in data and data[field] for field in required_fields):
                 self.set_status(400)
-                self.write({"error": "First name, last name, and email are required."})
+                self.write({"error": "All employee fields are required."})
                 return
 
             cursor = db.cursor()
             query = """
             UPDATE employees
-            SET firstName = %s, lastName = %s, email = %s, phone = %s, department = %s, designation = %s, salary = %s, hireDate = %s, dateOfBirth = %s, address = %s, city = %s, state = %s, postalCode = %s, country = %s, emergencyContactName = %s, emergencyContactPhone = %s
-            WHERE id = %s
+            SET firstName = %s, lastName = %s, email = %s, phone = %s, department = %s,
+            designation = %s, salary = %s, hireDate = %s, dateOfBirth = %s, address = %s,
+            city = %s, state = %s, postalCode = %s, country = %s,
+            emergencyContactName = %s, emergencyContactPhone = %s
+            WHERE id = %s AND user_id = %s
             """
             cursor.execute(query, (
-                firstName, lastName, email, phone, department, designation, salary,
-                hireDate, dateOfBirth, address, city, state, postalCode, country,
-                emergencyContactName, emergencyContactPhone, employee_id
+                data['firstName'], data['lastName'], data['email'], data['phone'],
+                data['department'], data['designation'], data['salary'], data['hireDate'],
+                data['dateOfBirth'], data['address'], data['city'], data['state'],
+                data['postalCode'], data['country'], data['emergencyContactName'],
+                data['emergencyContactPhone'], employee_id, user_id
             ))
             db.commit()
+
+            rowcount = cursor.rowcount
             cursor.close()
 
-            if cursor.rowcount > 0:
+            if rowcount > 0:
                 self.set_status(200)
                 self.write({"message": "Employee updated successfully."})
             else:
                 self.set_status(404)
-                self.write({"error": "Employee not found."})
+                self.write({"error": "Employee not found or you don't have permission to update it."})
         except Exception as e:
             self.set_status(500)
             self.write({"error": f"Internal server error: {e}"})
 
     def delete(self, employee_id):
         try:
+            user_id = self.get_current_user().decode('utf-8')
             cursor = db.cursor()
-            query = "DELETE FROM employees WHERE id = %s"
-            cursor.execute(query, (employee_id,))
+            query = "DELETE FROM employees WHERE id = %s AND user_id = %s"
+            cursor.execute(query, (employee_id, user_id))
             db.commit()
+
+            rowcount = cursor.rowcount
             cursor.close()
 
-            if cursor.rowcount > 0:
+            if rowcount > 0:
                 self.set_status(200)
                 self.write({"message": "Employee deleted successfully."})
             else:
                 self.set_status(404)
-                self.write({"error": "Employee not found."})
+                self.write({"error": "Employee not found or you don't have permission to delete it."})
         except Exception as e:
             self.set_status(500)
             self.write({"error": f"Internal server error: {e}"})

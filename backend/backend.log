@@ -1,0 +1,37 @@
+Error connecting to MySQL: 2004 (HY000): Can't create TCP/IP socket (97)
+Traceback (most recent call last):
+  File "/app/backend/main.py", line 309, in <module>
+    asyncio.run(main())
+    ~~~~~~~~~~~^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.13.5/lib/python3.13/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/home/jules/.pyenv/versions/3.13.5/lib/python3.13/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/jules/.pyenv/versions/3.13.5/lib/python3.13/asyncio/base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/app/backend/main.py", line 304, in main
+    app.listen(8000)
+    ~~~~~~~~~~^^^^^^
+  File "/home/jules/.pyenv/versions/3.13.5/lib/python3.13/site-packages/tornado/web.py", line 2270, in listen
+    server.listen(
+    ~~~~~~~~~~~~~^
+        port,
+        ^^^^^
+    ...<4 lines>...
+        reuse_port=reuse_port,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/jules/.pyenv/versions/3.13.5/lib/python3.13/site-packages/tornado/tcpserver.py", line 183, in listen
+    sockets = bind_sockets(
+        port,
+    ...<4 lines>...
+        reuse_port=reuse_port,
+    )
+  File "/home/jules/.pyenv/versions/3.13.5/lib/python3.13/site-packages/tornado/netutil.py", line 162, in bind_sockets
+    sock.bind(sockaddr)
+    ~~~~~~~~~^^^^^^^^^^
+OSError: [Errno 98] Address already in use

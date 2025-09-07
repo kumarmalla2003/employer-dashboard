@@ -1,4 +1,4 @@
-// src/components/AddEditEmployeePage.jsx
+// src/pages/AddEditEmployeePage.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "../components/Button";
@@ -32,27 +32,26 @@ const AddEditEmployeePage = () => {
   useEffect(() => {
     if (isEditing) {
       setLoading(true);
-      // Simulating a fetch call with dummy data
-      const dummyEmployeeData = {
-        firstName: "John",
-        lastName: "Doe",
-        email: "john.doe@example.com",
-        phone: "123-456-7890",
-        department: "Engineering",
-        designation: "Software Engineer",
-        salary: "85000.00",
-        hireDate: "2022-03-15",
-        dateOfBirth: "1990-05-20",
-        address: "Near Rotary Blood Bank",
-        city: "Vizianagaram",
-        postalCode: "535002",
-        state: "Andhra Pradesh",
-        country: "India",
-        emergencyContactName: "Jane Doe",
-        emergencyContactPhone: "987-654-3210",
+      const fetchEmployee = async () => {
+        try {
+          const response = await fetch(`http://localhost:8000/api/employees/${id}`, {
+            credentials: "include",
+          });
+          if (!response.ok) {
+            throw new Error("Failed to fetch employee data.");
+          }
+          const data = await response.json();
+          // Format dates for input fields
+          data.hireDate = data.hireDate ? new Date(data.hireDate).toISOString().split('T')[0] : '';
+          data.dateOfBirth = data.dateOfBirth ? new Date(data.dateOfBirth).toISOString().split('T')[0] : '';
+          setEmployee(data);
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setLoading(false);
+        }
       };
-      setEmployee(dummyEmployeeData);
-      setLoading(false);
+      fetchEmployee();
     }
   }, [isEditing, id]);
 
@@ -64,22 +63,35 @@ const AddEditEmployeePage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
-    // In a real application, you would make an API call here.
     const apiMethod = isEditing ? "PUT" : "POST";
-    const apiUrl = isEditing ? `/api/employees/${id}` : "/api/employees";
+    const apiUrl = isEditing
+      ? `http://localhost:8000/api/employees/${id}`
+      : "http://localhost:8000/api/employees";
 
-    console.log(`${apiMethod} request to ${apiUrl} with data:`, employee);
-
-    setTimeout(() => {
-      setLoading(false);
-      console.log(`Employee ${isEditing ? "updated" : "added"} successfully!`);
+    try {
+      const response = await fetch(apiUrl, {
+        method: apiMethod,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(employee),
+        credentials: "include",
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || `Failed to ${isEditing ? "update" : "add"} employee.`);
+      }
       navigate("/employees");
-    }, 1000);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -98,7 +110,7 @@ const AddEditEmployeePage = () => {
       <hr className="border-gray-700 mb-6" />
 
       {loading && <div className="text-center text-blue-400">Loading...</div>}
-      {error && <div className="text-red-400 text-center">{error}</div>}
+      {error && <div className="text-red-400 text-center mb-4">{error}</div>}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Personal Information */}
@@ -399,6 +411,7 @@ const AddEditEmployeePage = () => {
                 onChange={handleChange}
                 placeholder="e.g., Jane Doe"
                 className="mt-1 w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                required
               />
             </div>
             <div>
@@ -416,6 +429,7 @@ const AddEditEmployeePage = () => {
                 onChange={handleChange}
                 placeholder="e.g., 987-654-3210"
                 className="mt-1 w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                required
               />
             </div>
           </div>
@@ -424,13 +438,14 @@ const AddEditEmployeePage = () => {
         <div className="flex justify-end pt-4">
           <Button
             type="submit"
+            disabled={loading}
             className={
               isEditing
                 ? "w-full sm:w-auto text-gray-50 bg-yellow-500 hover:bg-yellow-600 focus:ring-yellow-500 focus:ring-offset-gray-900"
                 : "w-full sm:w-auto text-gray-50 bg-green-500 hover:bg-green-600 focus:ring-green-500 focus:ring-offset-gray-900"
             }
           >
-            {isEditing ? "Update Employee" : "Add Employee"}
+            {loading ? 'Saving...' : (isEditing ? "Update Employee" : "Add Employee")}
           </Button>
         </div>
       </form>

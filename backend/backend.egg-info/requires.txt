@@ -1,0 +1,4 @@
+bcrypt>=4.3.0
+mysql-connector-python>=9.4.0
+tornado>=6.5.2
+python-dotenv>=0.21.0

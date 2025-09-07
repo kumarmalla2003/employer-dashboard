@@ -1,0 +1,10 @@
+Metadata-Version: 2.4
+Name: backend
+Version: 0.1.0
+Summary: Add your description here
+Requires-Python: >=3.13
+Description-Content-Type: text/markdown
+Requires-Dist: bcrypt>=4.3.0
+Requires-Dist: mysql-connector-python>=9.4.0
+Requires-Dist: tornado>=6.5.2
+Requires-Dist: python-dotenv>=0.21.0

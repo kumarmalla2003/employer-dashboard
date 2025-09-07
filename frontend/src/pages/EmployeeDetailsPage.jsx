@@ -11,43 +11,20 @@ const EmployeeDetailsPage = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // In a real application, you would make an API call to fetch employee data
     const fetchEmployeeDetails = async () => {
       setLoading(true);
       setError(null);
       try {
-        // Simulating a network request with a delay
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        // Dummy data for a specific employee based on ID
-        const dummyEmployeeData = {
-          id: id,
-          firstName: "John",
-          lastName: "Doe",
-          email: "john.doe@example.com",
-          phone: "123-456-7890",
-          dateOfBirth: "1990-05-20",
-          department: "Engineering",
-          designation: "Software Engineer",
-          salary: "85000.00",
-          hireDate: "2022-03-15",
-          address: "Near Rotary Blood Bank",
-          city: "Vizianagaram",
-          postalCode: "535002",
-          state: "Andhra Pradesh",
-          country: "India",
-          emergencyContactName: "Jane Doe",
-          emergencyContactPhone: "987-654-3210",
-        };
-
-        if (id !== dummyEmployeeData.id) {
-          throw new Error("Employee not found.");
+        const response = await fetch(`http://localhost:8000/api/employees/${id}`, {
+          credentials: "include",
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch employee details.");
         }
-
-        setEmployee(dummyEmployeeData);
+        const data = await response.json();
+        setEmployee(data);
       } catch (err) {
-        setError("Failed to fetch employee details.");
-        console.error(err);
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -56,12 +33,21 @@ const EmployeeDetailsPage = () => {
     fetchEmployeeDetails();
   }, [id]);
 
-  const handleDelete = () => {
-    // In a real application, you would make an API call here.
-    console.log(`Deleting employee with ID: ${id}`);
-    // Simulating API call success
-    alert(`Employee with ID ${id} deleted successfully!`);
-    navigate("/employees");
+  const handleDelete = async () => {
+    if (window.confirm("Are you sure you want to delete this employee?")) {
+      try {
+        const response = await fetch(`http://localhost:8000/api/employees/${id}`, {
+          method: "DELETE",
+          credentials: "include",
+        });
+        if (!response.ok) {
+          throw new Error("Failed to delete employee.");
+        }
+        navigate("/employees");
+      } catch (err) {
+        setError(err.message);
+      }
+    }
   };
 
   if (loading) {
