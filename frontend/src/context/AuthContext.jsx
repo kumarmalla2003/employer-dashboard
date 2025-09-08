@@ -13,6 +13,21 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
+        // Check if user performed a normal navigation (not a refresh)
+        const wasNavigating = sessionStorage.getItem("isNavigating");
+
+        if (!wasNavigating) {
+          // This is a page refresh - user should be logged out
+          console.log("Page refresh detected - logging out user");
+          setIsLoggedIn(false);
+          setIsLoading(false);
+          return;
+        }
+
+        // Clear the navigation flag since we've used it
+        sessionStorage.removeItem("isNavigating");
+
+        // Check with server if the cookie is still valid
         const response = await fetch("http://localhost:8000/api/check-auth", {
           method: "GET",
           headers: {
@@ -20,6 +35,7 @@ export const AuthProvider = ({ children }) => {
           },
           credentials: "include", // This is crucial for sending cookies
         });
+
         if (response.ok) {
           setIsLoggedIn(true);
         } else {
@@ -34,7 +50,37 @@ export const AuthProvider = ({ children }) => {
     };
 
     checkLoginStatus();
-  }, []);
+
+    // Set up event listeners to detect navigation vs refresh
+    const handleNavigation = () => {
+      if (isLoggedIn) {
+        sessionStorage.setItem("isNavigating", "true");
+      }
+    };
+
+    // Listen for navigation events (but not refresh)
+    const originalPushState = history.pushState;
+    const originalReplaceState = history.replaceState;
+
+    history.pushState = function () {
+      handleNavigation();
+      return originalPushState.apply(history, arguments);
+    };
+
+    history.replaceState = function () {
+      handleNavigation();
+      return originalReplaceState.apply(history, arguments);
+    };
+
+    window.addEventListener("popstate", handleNavigation);
+
+    // Cleanup
+    return () => {
+      history.pushState = originalPushState;
+      history.replaceState = originalReplaceState;
+      window.removeEventListener("popstate", handleNavigation);
+    };
+  }, [isLoggedIn]);
 
   const login = async (email, password) => {
     try {
@@ -49,6 +95,8 @@ export const AuthProvider = ({ children }) => {
 
       if (response.ok) {
         setIsLoggedIn(true);
+        // Set navigation flag so user stays logged in during normal navigation
+        sessionStorage.setItem("isNavigating", "true");
         return { success: true, message: "Login successful" };
       } else {
         const errorData = await response.json();
@@ -66,13 +114,19 @@ export const AuthProvider = ({ children }) => {
         method: "POST",
         credentials: "include", // Include credentials for cookies
       });
-      if (response.ok) {
-        setIsLoggedIn(false);
-        // Optional: Redirect to landing page after logout
-        // navigate('/');
+
+      // Always update local state regardless of server response
+      setIsLoggedIn(false);
+      sessionStorage.removeItem("isNavigating");
+
+      if (!response.ok) {
+        console.error("Server logout failed, but local state cleared");
       }
     } catch (error) {
       console.error("Logout failed:", error);
+      // Always clear local state even if server request fails
+      setIsLoggedIn(false);
+      sessionStorage.removeItem("isNavigating");
     }
   };
 

@@ -27,6 +27,7 @@ def create_db_connection():
 db = create_db_connection()
 
 # --- Base Handler for CORS and User Authentication ---
+# --- Base Handler for CORS and User Authentication ---
 class BaseHandler(tornado.web.RequestHandler):
     def set_default_headers(self):
         self.set_header("Access-Control-Allow-Origin", "http://localhost:5173")
@@ -34,7 +35,8 @@ class BaseHandler(tornado.web.RequestHandler):
         self.set_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
         self.set_header("Access-Control-Allow-Credentials", "true")
 
-    def options(self):
+    def options(self, *args, **kwargs):
+        """Handle CORS preflight requests with any number of arguments"""
         self.set_status(204)
         self.finish()
 
@@ -86,7 +88,7 @@ class LoginHandler(BaseHandler):
             cursor.close()
 
             if user and bcrypt.checkpw(password.encode('utf-8'), user['password_hash'].encode('utf-8')):
-                self.set_secure_cookie("user", str(user['id']), expires_days=1)
+                self.set_secure_cookie("user", str(user['id']))
                 self.set_status(200)
                 self.write({"message": "Login successful."})
             else:
@@ -102,7 +104,6 @@ class LogoutHandler(BaseHandler):
         self.set_status(200)
         self.write({"message": "Logged out successfully."})
 
-# ADD THIS NEW ENDPOINT FOR CHECKING AUTH STATUS
 class CheckAuthHandler(BaseHandler):
     def get(self):
         user_id = self.get_current_user()
@@ -168,11 +169,16 @@ class EmployeeHandler(BaseHandler):
         try:
             user_id = self.get_current_user().decode('utf-8')
             cursor = db.cursor(dictionary=True)
+            
             if employee_id:
+                print(f"Fetching employee with ID: {employee_id} for user: {user_id}")
                 query = "SELECT id, firstName, lastName, email, phone, department, designation, salary, hireDate, dateOfBirth, address, city, state, postalCode, country, emergencyContactName, emergencyContactPhone FROM employees WHERE id = %s AND user_id = %s"
                 cursor.execute(query, (employee_id, user_id))
                 employee = cursor.fetchone()
+                cursor.close()
+                
                 if employee:
+                    self.set_status(200)
                     self.write(json.dumps(employee, default=str))
                 else:
                     self.set_status(404)
@@ -181,9 +187,13 @@ class EmployeeHandler(BaseHandler):
                 query = "SELECT id, firstName, lastName, email, phone, department, designation, salary, hireDate, dateOfBirth, address, city, state, postalCode, country, emergencyContactName, emergencyContactPhone FROM employees WHERE user_id = %s"
                 cursor.execute(query, (user_id,))
                 employees = cursor.fetchall()
+                cursor.close()
+                
+                self.set_status(200)
                 self.write(json.dumps(employees, default=str))
-            cursor.close()
+                
         except Exception as e:
+            print(f"Error in GET /employees/{employee_id}: {e}")
             self.set_status(500)
             self.write({"error": f"Internal server error: {e}"})
 
@@ -199,7 +209,6 @@ class EmployeeHandler(BaseHandler):
                 'emergencyContactName', 'emergencyContactPhone'
             ]
 
-            # Check for missing or empty fields
             missing_fields = [field for field in required_fields if not data.get(field)]
             if missing_fields:
                 self.set_status(400)
@@ -226,7 +235,6 @@ class EmployeeHandler(BaseHandler):
             self.set_status(201)
             self.write({"message": "Employee created successfully.", "id": new_id})
         except mysql.connector.IntegrityError as err:
-            # Handle duplicate email error specifically
             if "Duplicate entry" in str(err) and "email" in str(err):
                 self.set_status(409)
                 self.write({"error": "This email is already registered for an employee."})
@@ -244,6 +252,7 @@ class EmployeeHandler(BaseHandler):
 
     def put(self, employee_id):
         try:
+            print(f"PUT request for employee ID: {employee_id}")
             user_id = self.get_current_user().decode('utf-8')
             data = json.loads(self.request.body)
 
@@ -296,11 +305,13 @@ class EmployeeHandler(BaseHandler):
                 self.write({"error": f"Database constraint error: {err}"})
             db.rollback()
         except Exception as e:
+            print(f"Error in PUT /employees/{employee_id}: {e}")
             self.set_status(500)
             self.write({"error": f"Internal server error: {e}"})
 
     def delete(self, employee_id):
         try:
+            print(f"DELETE request for employee ID: {employee_id}")
             user_id = self.get_current_user().decode('utf-8')
             cursor = db.cursor()
             query = "DELETE FROM employees WHERE id = %s AND user_id = %s"
@@ -317,6 +328,7 @@ class EmployeeHandler(BaseHandler):
                 self.set_status(404)
                 self.write({"error": "Employee not found or you don't have permission to delete it."})
         except Exception as e:
+            print(f"Error in DELETE /employees/{employee_id}: {e}")
             self.set_status(500)
             self.write({"error": f"Internal server error: {e}"})
 
@@ -330,10 +342,10 @@ def make_app():
         (r"/api/signup", SignupHandler),
         (r"/api/login", LoginHandler),
         (r"/api/logout", LogoutHandler),
-        (r"/api/check-auth", CheckAuthHandler),  # ADD THIS LINE
+        (r"/api/check-auth", CheckAuthHandler),
         (r"/api/reset-password", ResetPasswordHandler),
-        (r"/api/employees", EmployeeHandler),
-        (r"/api/employees/(?P<employee_id>[0-9]+)", EmployeeHandler),
+        (r"/api/employees/?$", EmployeeHandler),  # Fixed: Made trailing slash optional
+        (r"/api/employees/([0-9]+)/?$", EmployeeHandler),  # Fixed: Proper capture group syntax
     ], 
     cookie_secret=cookie_secret,
     debug=True)
