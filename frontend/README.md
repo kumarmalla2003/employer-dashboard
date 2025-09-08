@@ -1,12 +1,70 @@
-# React + Vite
+# Frontend Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the frontend for the application, built with React and Vite. It provides a user interface for interacting with the backend API to manage employee data.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+*   **User Authentication:**
+    *   Responsive landing page.
+    *   User signup, login, and password reset via modals.
+    *   Authenticated routes protected from public access.
+*   **Employee Dashboard:**
+    *   A central dashboard page after login.
+*   **Employee Management:**
+    *   View a list of all employees.
+    *   View detailed information for a single employee.
+    *   Add new employees via a dedicated form.
+    *   Edit existing employee information.
+    *   Delete employees.
+*   **Styling:**
+    *   Styled with TailwindCSS for a modern, utility-first design.
 
-## Expanding the ESLint configuration
+## Prerequisites
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+*   Node.js (latest LTS version recommended)
+*   npm (comes with Node.js)
+
+## Installation
+
+1.  **Navigate to the `frontend` directory from the project root.**
+    ```bash
+    cd frontend
+    ```
+
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+
+## Usage (Development)
+
+To start the development server, run the following command:
+
+```bash
+npm run dev
+```
+
+This will start the Vite development server, and you can view the application in your browser at `http://localhost:5173` (Vite's default port). The server will automatically reload when you make changes to the code.
+
+## Available Scripts
+
+*   `npm run dev`: Starts the development server.
+*   `npm run build`: Builds the application for production. The output will be in the `dist` directory.
+*   `npm run lint`: Lints the source code using ESLint to check for errors and style issues.
+*   `npm run preview`: Serves the production build locally to preview it before deployment.
+
+## Connecting to the Backend
+
+This frontend application is designed to communicate with the backend API. The API URL is currently hardcoded in the source code to point to `http://localhost:8000`.
+
+**For development, you must have the backend server running simultaneously.** Please follow the instructions in the [backend README](../backend/README.md) to set up and run the backend server.
+
+## Deployment
+
+To deploy this application, you first need to build it:
+```bash
+npm run build
+```
+This will create a `dist` directory with static files. You can then deploy this `dist` directory to any static hosting service, such as Netlify, Vercel, or GitHub Pages.
+
+Make sure to configure your production environment so that the frontend can communicate with your deployed backend API. This might involve updating the hardcoded URL before building or configuring a reverse proxy to forward API requests from the frontend's domain to the backend server.
