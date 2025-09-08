@@ -34,19 +34,31 @@ const AddEditEmployeePage = () => {
       setLoading(true);
       const fetchEmployee = async () => {
         try {
-          const response = await fetch(`http://localhost:8000/api/employees/${id}`, {
-            credentials: "include",
-          });
+          const response = await fetch(
+            `http://localhost:8000/api/employees/${id}`,
+            {
+              method: "GET",
+              credentials: "include",
+            }
+          );
           if (!response.ok) {
-            throw new Error("Failed to fetch employee data.");
+            const errorData = await response.json();
+            throw new Error(
+              errorData.error || "Failed to fetch employee data."
+            );
           }
           const data = await response.json();
           // Format dates for input fields
-          data.hireDate = data.hireDate ? new Date(data.hireDate).toISOString().split('T')[0] : '';
-          data.dateOfBirth = data.dateOfBirth ? new Date(data.dateOfBirth).toISOString().split('T')[0] : '';
+          data.hireDate = data.hireDate
+            ? new Date(data.hireDate).toISOString().split("T")[0]
+            : "";
+          data.dateOfBirth = data.dateOfBirth
+            ? new Date(data.dateOfBirth).toISOString().split("T")[0]
+            : "";
           setEmployee(data);
         } catch (err) {
           setError(err.message);
+          console.error("Fetch employee error:", err);
         } finally {
           setLoading(false);
         }
@@ -68,26 +80,69 @@ const AddEditEmployeePage = () => {
     setError(null);
     setLoading(true);
 
+    // Validate required fields on frontend too
+    const requiredFields = [
+      "firstName",
+      "lastName",
+      "email",
+      "phone",
+      "department",
+      "designation",
+      "salary",
+      "hireDate",
+      "dateOfBirth",
+      "address",
+      "city",
+      "state",
+      "postalCode",
+      "country",
+      "emergencyContactName",
+      "emergencyContactPhone",
+    ];
+
+    const missingFields = requiredFields.filter(
+      (field) => !employee[field] || employee[field].trim() === ""
+    );
+    if (missingFields.length > 0) {
+      setError(
+        `Please fill in all required fields: ${missingFields.join(", ")}`
+      );
+      setLoading(false);
+      return;
+    }
+
     const apiMethod = isEditing ? "PUT" : "POST";
     const apiUrl = isEditing
       ? `http://localhost:8000/api/employees/${id}`
       : "http://localhost:8000/api/employees";
 
     try {
+      console.log("Submitting employee data:", employee);
+
       const response = await fetch(apiUrl, {
         method: apiMethod,
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(employee),
-        credentials: "include",
+        credentials: "include", // This is crucial for authentication
       });
+
+      console.log("Response status:", response.status);
+
       const data = await response.json();
+      console.log("Response data:", data);
+
       if (!response.ok) {
-        throw new Error(data.error || `Failed to ${isEditing ? "update" : "add"} employee.`);
+        throw new Error(
+          data.error || `Failed to ${isEditing ? "update" : "add"} employee.`
+        );
       }
+
+      // Success - redirect to employees list
       navigate("/employees");
     } catch (err) {
+      console.error("Submit error:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -110,7 +165,11 @@ const AddEditEmployeePage = () => {
       <hr className="border-gray-700 mb-6" />
 
       {loading && <div className="text-center text-blue-400">Loading...</div>}
-      {error && <div className="text-red-400 text-center mb-4">{error}</div>}
+      {error && (
+        <div className="text-red-400 text-center mb-4 p-3 bg-red-900/20 rounded-md border border-red-800">
+          {error}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Personal Information */}
@@ -124,7 +183,7 @@ const AddEditEmployeePage = () => {
                 htmlFor="firstName"
                 className="block text-sm font-medium text-gray-200"
               >
-                First Name
+                First Name *
               </label>
               <input
                 type="text"
@@ -142,7 +201,7 @@ const AddEditEmployeePage = () => {
                 htmlFor="lastName"
                 className="block text-sm font-medium text-gray-200"
               >
-                Last Name
+                Last Name *
               </label>
               <input
                 type="text"
@@ -160,7 +219,7 @@ const AddEditEmployeePage = () => {
                 htmlFor="email"
                 className="block text-sm font-medium text-gray-200"
               >
-                Email
+                Email *
               </label>
               <input
                 type="email"
@@ -178,7 +237,7 @@ const AddEditEmployeePage = () => {
                 htmlFor="phone"
                 className="block text-sm font-medium text-gray-200"
               >
-                Phone
+                Phone *
               </label>
               <input
                 type="tel"
@@ -196,7 +255,7 @@ const AddEditEmployeePage = () => {
                 htmlFor="dateOfBirth"
                 className="block text-sm font-medium text-gray-200"
               >
-                Date of Birth
+                Date of Birth *
               </label>
               <input
                 type="date"
@@ -222,7 +281,7 @@ const AddEditEmployeePage = () => {
                 htmlFor="department"
                 className="block text-sm font-medium text-gray-200"
               >
-                Department
+                Department *
               </label>
               <input
                 type="text"
@@ -240,7 +299,7 @@ const AddEditEmployeePage = () => {
                 htmlFor="designation"
                 className="block text-sm font-medium text-gray-200"
               >
-                Designation
+                Designation *
               </label>
               <input
                 type="text"
@@ -258,7 +317,7 @@ const AddEditEmployeePage = () => {
                 htmlFor="salary"
                 className="block text-sm font-medium text-gray-200"
               >
-                Salary
+                Salary *
               </label>
               <input
                 type="number"
@@ -276,7 +335,7 @@ const AddEditEmployeePage = () => {
                 htmlFor="hireDate"
                 className="block text-sm font-medium text-gray-200"
               >
-                Hire Date
+                Hire Date *
               </label>
               <input
                 type="date"
@@ -302,7 +361,7 @@ const AddEditEmployeePage = () => {
                 htmlFor="address"
                 className="block text-sm font-medium text-gray-200"
               >
-                Street Address
+                Street Address *
               </label>
               <input
                 type="text"
@@ -320,7 +379,7 @@ const AddEditEmployeePage = () => {
                 htmlFor="city"
                 className="block text-sm font-medium text-gray-200"
               >
-                City
+                City *
               </label>
               <input
                 type="text"
@@ -338,7 +397,7 @@ const AddEditEmployeePage = () => {
                 htmlFor="state"
                 className="block text-sm font-medium text-gray-200"
               >
-                State
+                State *
               </label>
               <input
                 type="text"
@@ -356,7 +415,7 @@ const AddEditEmployeePage = () => {
                 htmlFor="postalCode"
                 className="block text-sm font-medium text-gray-200"
               >
-                Postal Code
+                Postal Code *
               </label>
               <input
                 type="text"
@@ -374,7 +433,7 @@ const AddEditEmployeePage = () => {
                 htmlFor="country"
                 className="block text-sm font-medium text-gray-200"
               >
-                Country
+                Country *
               </label>
               <input
                 type="text"
@@ -401,7 +460,7 @@ const AddEditEmployeePage = () => {
                 htmlFor="emergencyContactName"
                 className="block text-sm font-medium text-gray-200"
               >
-                Name
+                Name *
               </label>
               <input
                 type="text"
@@ -419,7 +478,7 @@ const AddEditEmployeePage = () => {
                 htmlFor="emergencyContactPhone"
                 className="block text-sm font-medium text-gray-200"
               >
-                Phone
+                Phone *
               </label>
               <input
                 type="tel"
@@ -441,11 +500,15 @@ const AddEditEmployeePage = () => {
             disabled={loading}
             className={
               isEditing
-                ? "w-full sm:w-auto text-gray-50 bg-yellow-500 hover:bg-yellow-600 focus:ring-yellow-500 focus:ring-offset-gray-900"
-                : "w-full sm:w-auto text-gray-50 bg-green-500 hover:bg-green-600 focus:ring-green-500 focus:ring-offset-gray-900"
+                ? "w-full sm:w-auto text-gray-50 bg-yellow-500 hover:bg-yellow-600 focus:ring-yellow-500 focus:ring-offset-gray-900 disabled:opacity-50"
+                : "w-full sm:w-auto text-gray-50 bg-green-500 hover:bg-green-600 focus:ring-green-500 focus:ring-offset-gray-900 disabled:opacity-50"
             }
           >
-            {loading ? 'Saving...' : (isEditing ? "Update Employee" : "Add Employee")}
+            {loading
+              ? "Saving..."
+              : isEditing
+              ? "Update Employee"
+              : "Add Employee"}
           </Button>
         </div>
       </form>

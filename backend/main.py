@@ -102,6 +102,17 @@ class LogoutHandler(BaseHandler):
         self.set_status(200)
         self.write({"message": "Logged out successfully."})
 
+# ADD THIS NEW ENDPOINT FOR CHECKING AUTH STATUS
+class CheckAuthHandler(BaseHandler):
+    def get(self):
+        user_id = self.get_current_user()
+        if user_id:
+            self.set_status(200)
+            self.write({"authenticated": True, "user_id": user_id.decode('utf-8')})
+        else:
+            self.set_status(401)
+            self.write({"authenticated": False})
+
 class ResetPasswordHandler(BaseHandler):
     def post(self):
         try:
@@ -144,6 +155,10 @@ class ResetPasswordHandler(BaseHandler):
 # --- Employee Management Handlers ---
 class EmployeeHandler(BaseHandler):
     def prepare(self):
+        # Skip authentication check for OPTIONS requests (CORS preflight)
+        if self.request.method == "OPTIONS":
+            return
+        
         if not self.get_current_user():
             self.set_status(401)
             self.write({"error": "Unauthorized"})
@@ -168,7 +183,6 @@ class EmployeeHandler(BaseHandler):
                 employees = cursor.fetchall()
                 self.write(json.dumps(employees, default=str))
             cursor.close()
-            self.set_status(200)
         except Exception as e:
             self.set_status(500)
             self.write({"error": f"Internal server error: {e}"})
@@ -185,9 +199,11 @@ class EmployeeHandler(BaseHandler):
                 'emergencyContactName', 'emergencyContactPhone'
             ]
 
-            if not all(field in data and data[field] for field in required_fields):
+            # Check for missing or empty fields
+            missing_fields = [field for field in required_fields if not data.get(field)]
+            if missing_fields:
                 self.set_status(400)
-                self.write({"error": "All employee fields are required."})
+                self.write({"error": f"Missing required fields: {', '.join(missing_fields)}"})
                 return
 
             cursor = db.cursor()
@@ -209,9 +225,18 @@ class EmployeeHandler(BaseHandler):
 
             self.set_status(201)
             self.write({"message": "Employee created successfully.", "id": new_id})
+        except mysql.connector.IntegrityError as err:
+            # Handle duplicate email error specifically
+            if "Duplicate entry" in str(err) and "email" in str(err):
+                self.set_status(409)
+                self.write({"error": "This email is already registered for an employee."})
+            else:
+                self.set_status(400)
+                self.write({"error": f"Database constraint error: {err}"})
+            db.rollback()
         except mysql.connector.Error as err:
-            self.set_status(409)
-            self.write({"error": "This email is already registered for an employee."})
+            self.set_status(500)
+            self.write({"error": f"Database error: {err}"})
             db.rollback()
         except Exception as e:
             self.set_status(500)
@@ -229,9 +254,10 @@ class EmployeeHandler(BaseHandler):
                 'emergencyContactName', 'emergencyContactPhone'
             ]
 
-            if not all(field in data and data[field] for field in required_fields):
+            missing_fields = [field for field in required_fields if not data.get(field)]
+            if missing_fields:
                 self.set_status(400)
-                self.write({"error": "All employee fields are required."})
+                self.write({"error": f"Missing required fields: {', '.join(missing_fields)}"})
                 return
 
             cursor = db.cursor()
@@ -261,6 +287,14 @@ class EmployeeHandler(BaseHandler):
             else:
                 self.set_status(404)
                 self.write({"error": "Employee not found or you don't have permission to update it."})
+        except mysql.connector.IntegrityError as err:
+            if "Duplicate entry" in str(err) and "email" in str(err):
+                self.set_status(409)
+                self.write({"error": "This email is already registered for another employee."})
+            else:
+                self.set_status(400)
+                self.write({"error": f"Database constraint error: {err}"})
+            db.rollback()
         except Exception as e:
             self.set_status(500)
             self.write({"error": f"Internal server error: {e}"})
@@ -288,15 +322,20 @@ class EmployeeHandler(BaseHandler):
 
 # --- Application and Server Setup ---
 def make_app():
+    cookie_secret = os.environ.get("TORNADO_COOKIE_SECRET")
+    if not cookie_secret:
+        raise ValueError("The TORNADO_COOKIE_SECRET environment variable must be set for security.")
+
     return tornado.web.Application([
         (r"/api/signup", SignupHandler),
         (r"/api/login", LoginHandler),
         (r"/api/logout", LogoutHandler),
-        (r"/api/reset-password", ResetPasswordHandler), # Add this line
+        (r"/api/check-auth", CheckAuthHandler),  # ADD THIS LINE
+        (r"/api/reset-password", ResetPasswordHandler),
         (r"/api/employees", EmployeeHandler),
         (r"/api/employees/(?P<employee_id>[0-9]+)", EmployeeHandler),
     ], 
-    cookie_secret=os.environ.get("TORNADO_COOKIE_SECRET", "default_secret_key"),
+    cookie_secret=cookie_secret,
     debug=True)
 
 async def main():

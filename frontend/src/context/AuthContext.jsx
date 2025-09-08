@@ -7,20 +7,18 @@ const AuthContext = createContext(null);
 // Create a provider component to wrap the app
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Check for the authentication cookie on initial load
   useEffect(() => {
     const checkLoginStatus = async () => {
-      // In a real app, you would have a /check-auth endpoint
-      // For now, we'll assume a successful login sets the cookie,
-      // and a simple page reload with the cookie means the user is still authenticated.
-      // This is a simplified check for the demo.
       try {
         const response = await fetch("http://localhost:8000/api/check-auth", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: "include", // This is crucial for sending cookies
         });
         if (response.ok) {
           setIsLoggedIn(true);
@@ -30,9 +28,12 @@ export const AuthProvider = ({ children }) => {
       } catch (error) {
         console.error("Failed to check auth status:", error);
         setIsLoggedIn(false);
+      } finally {
+        setIsLoading(false);
       }
     };
-    // Let's add an empty dependency array to run only once.
+
+    checkLoginStatus();
   }, []);
 
   const login = async (email, password) => {
@@ -42,6 +43,7 @@ export const AuthProvider = ({ children }) => {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include", // Include credentials for cookies
         body: JSON.stringify({ email, password }),
       });
 
@@ -62,6 +64,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await fetch("http://localhost:8000/api/logout", {
         method: "POST",
+        credentials: "include", // Include credentials for cookies
       });
       if (response.ok) {
         setIsLoggedIn(false);
@@ -73,7 +76,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const value = { isLoggedIn, login, logout };
+  const value = { isLoggedIn, login, logout, isLoading };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
