@@ -1,13 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "./Button";
 import { useAuth } from "../context/AuthContext";
+import Message from "./Message";
 
-const LoginModal = ({ isOpen, onClose }) => {
+const LoginModal = ({ isOpen, onClose, onSwitchToSignup }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
+
+  // Reset state when modal opens/closes
+  useEffect(() => {
+    if (!isOpen) {
+      setEmail("");
+      setPassword("");
+      setError("");
+      setIsLoading(false);
+    }
+  }, [isOpen]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -18,7 +29,7 @@ const LoginModal = ({ isOpen, onClose }) => {
 
     if (result.success) {
       console.log("Login successful!");
-      onClose();
+      onClose(); // Close modal on successful login
     } else {
       setError(result.message);
     }
@@ -31,19 +42,20 @@ const LoginModal = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
-      {/* Semi-transparent backdrop with blur effect */}
-      <div className="fixed inset-0 backdrop-blur-md" onClick={onClose}></div>
-
-      {/* Modal content container */}
+      <div
+        className="fixed inset-0 backdrop-blur-md"
+        onClick={onClose}
+        aria-hidden="true"
+      ></div>
       <div className="relative w-full max-w-sm sm:max-w-md p-6 sm:p-12 space-y-6 bg-gray-900 rounded-lg shadow-2xl border border-gray-800 z-50">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 transition-colors"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 transition-colors cursor-pointer"
           aria-label="Close"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 cursor-pointer"
+            className="h-6 w-6"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -64,7 +76,7 @@ const LoginModal = ({ isOpen, onClose }) => {
         </div>
         <hr className="border-gray-700" />
         <form onSubmit={handleLogin} className="space-y-6">
-          {error && <div className="text-red-400 text-center">{error}</div>}
+          <Message message={error} type="error" />
           <div>
             <label
               htmlFor="email"
@@ -114,6 +126,15 @@ const LoginModal = ({ isOpen, onClose }) => {
             </Button>
           </div>
         </form>
+        <div className="text-center text-sm text-gray-400">
+          Don't have an account?{" "}
+          <button
+            onClick={onSwitchToSignup}
+            className="font-medium text-blue-400 hover:text-blue-300 focus:outline-none focus:underline cursor-pointer"
+          >
+            Sign up first!
+          </button>
+        </div>
       </div>
     </div>
   );

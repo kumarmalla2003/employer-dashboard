@@ -10,26 +10,15 @@ import MobileNav from "../components/MobileNav";
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
+  const [modalState, setModalState] = useState(null); // null, 'login', or 'signup'
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const { isLoggedIn } = useAuth();
 
-  const handleOpenLoginModal = () => {
-    setIsLoginModalOpen(true);
-  };
-
-  const handleCloseLoginModal = () => {
-    setIsLoginModalOpen(false);
-  };
-
-  const handleOpenSignupModal = () => {
-    setIsSignupModalOpen(true);
-  };
-
-  const handleCloseSignupModal = () => {
-    setIsSignupModalOpen(false);
-  };
+  const handleOpenLoginModal = () => setModalState("login");
+  const handleCloseModal = () => setModalState(null);
+  const handleOpenSignupModal = () => setModalState("signup");
+  const handleSwitchToSignup = () => setModalState("signup");
+  const handleSwitchToLogin = () => setModalState("login");
 
   const handleGoToDashboard = () => {
     navigate("/dashboard");
@@ -224,12 +213,14 @@ const LandingPage = () => {
       {!isLoggedIn && (
         <>
           <LoginModal
-            isOpen={isLoginModalOpen}
-            onClose={handleCloseLoginModal}
+            isOpen={modalState === "login"}
+            onClose={handleCloseModal}
+            onSwitchToSignup={handleSwitchToSignup}
           />
           <SignupModal
-            isOpen={isSignupModalOpen}
-            onClose={handleCloseSignupModal}
+            isOpen={modalState === "signup"}
+            onClose={handleCloseModal}
+            onSwitchToLogin={handleSwitchToLogin}
           />
           <MobileNav
             isOpen={isMobileNavOpen}

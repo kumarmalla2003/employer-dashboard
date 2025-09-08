@@ -1,12 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "./Button";
+import Message from "./Message";
 
-const SignupModal = ({ isOpen, onClose }) => {
+const SignupModal = ({ isOpen, onClose, onSwitchToLogin }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Reset state when modal opens or closes
+  useEffect(() => {
+    if (isOpen) {
+      setEmail("");
+      setPassword("");
+      setError("");
+      setSuccess("");
+      setIsLoading(false);
+    }
+  }, [isOpen]);
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -24,8 +36,9 @@ const SignupModal = ({ isOpen, onClose }) => {
       });
 
       const data = await response.json();
+
       if (response.ok) {
-        setSuccess(data.message);
+        setSuccess(data.message + " You can now log in.");
         setEmail("");
         setPassword("");
       } else {
@@ -44,19 +57,20 @@ const SignupModal = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
-      {/* Semi-transparent backdrop with blur effect */}
-      <div className="fixed inset-0 backdrop-blur-md" onClick={onClose}></div>
-
-      {/* Modal content container */}
+      <div
+        className="fixed inset-0 backdrop-blur-md"
+        onClick={onClose}
+        aria-hidden="true"
+      ></div>
       <div className="relative w-full max-w-sm sm:max-w-md p-6 sm:p-12 space-y-6 bg-gray-900 rounded-lg shadow-2xl border border-gray-800 z-50">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 transition-colors"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 transition-colors cursor-pointer"
           aria-label="Close"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 cursor-pointer"
+            className="h-6 w-6"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -79,10 +93,8 @@ const SignupModal = ({ isOpen, onClose }) => {
         </div>
         <hr className="border-gray-700" />
         <form onSubmit={handleSignup} className="space-y-6">
-          {error && <div className="text-red-400 text-center">{error}</div>}
-          {success && (
-            <div className="text-green-400 text-center">{success}</div>
-          )}
+          <Message message={error} type="error" />
+          <Message message={success} type="success" />
           <div>
             <label
               htmlFor="signup-email"
@@ -100,7 +112,7 @@ const SignupModal = ({ isOpen, onClose }) => {
               className="text-gray-300 bg-gray-800 w-full px-4 py-2 mt-1 border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              disabled={isLoading || success}
+              disabled={isLoading || !!success}
             />
           </div>
           <div>
@@ -119,19 +131,28 @@ const SignupModal = ({ isOpen, onClose }) => {
               className="text-gray-300 bg-gray-800 w-full px-4 py-2 mt-1 border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              disabled={isLoading || success}
+              disabled={isLoading || !!success}
             />
           </div>
           <div>
             <Button
               type="submit"
               className="w-full text-gray-50 bg-blue-500 hover:bg-blue-600 focus:ring-blue-500 focus:ring-offset-gray-900"
-              disabled={isLoading || success}
+              disabled={isLoading || !!success}
             >
               {isLoading ? "Creating Account..." : "Sign Up"}
             </Button>
           </div>
         </form>
+        <div className="text-center text-sm text-gray-400">
+          Already have an account?{" "}
+          <button
+            onClick={onSwitchToLogin}
+            className="font-medium text-blue-400 hover:text-blue-300 focus:outline-none focus:underline cursor-pointer"
+          >
+            Login!
+          </button>
+        </div>
       </div>
     </div>
   );

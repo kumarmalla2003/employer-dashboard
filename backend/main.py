@@ -68,7 +68,7 @@ class SignupHandler(BaseHandler):
             self.write({"message": "User created successfully."})
         except mysql.connector.Error as err:
             self.set_status(409)
-            self.write({"error": "This email is already registered."})
+            self.write({"error": "This email is already registered. Please log in!"})
             db.rollback()
         except Exception as e:
             self.set_status(500)
@@ -87,13 +87,18 @@ class LoginHandler(BaseHandler):
             user = cursor.fetchone()
             cursor.close()
 
-            if user and bcrypt.checkpw(password.encode('utf-8'), user['password_hash'].encode('utf-8')):
+            if not user:
+                self.set_status(404)
+                self.write({"error": "This email is not registered! Please sign up first."})
+                return
+
+            if bcrypt.checkpw(password.encode('utf-8'), user['password_hash'].encode('utf-8')):
                 self.set_secure_cookie("user", str(user['id']))
                 self.set_status(200)
                 self.write({"message": "Login successful."})
             else:
                 self.set_status(401)
-                self.write({"error": "Invalid email or password."})
+                self.write({"error": "Wrong password! Please try again."})
         except Exception as e:
             self.set_status(500)
             self.write({"error": f"Internal server error: {e}"})
