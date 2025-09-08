@@ -5,7 +5,8 @@ const Message = ({ message, type }) => {
     return null;
   }
 
-  const baseClasses = "px-2 py-1 rounded-md border text-center";
+  const baseClasses =
+    "px-2 py-1 rounded-md border text-center inline-block w-full mb-4";
   const typeClasses = {
     error: "bg-red-100 border-red-700 text-red-500",
     success: "bg-green-100 border-green-700 text-green-500",

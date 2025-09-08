@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
+import Message from "../components/Message";
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -58,8 +59,10 @@ const DashboardPage = () => {
           );
         }).length;
 
-        // Get recent employees (last 5 added, sorted by ID descending)
-        const sortedEmployees = employeesData.sort((a, b) => b.id - a.id);
+        // Get recent employees (last 5 hired, sorted by hire date descending)
+        const sortedEmployees = employeesData.sort(
+          (a, b) => new Date(b.hireDate) - new Date(a.hireDate)
+        );
         const recentEmps = sortedEmployees.slice(0, 5).map((emp) => ({
           id: emp.id,
           name: `${emp.firstName} ${emp.lastName}`,
@@ -111,14 +114,12 @@ const DashboardPage = () => {
 
   if (error) {
     return (
-      <div className="bg-gray-950 text-gray-100 min-h-screen p-4 sm:p-6 lg:p-8">
+      <div className="bg-gray-950 text-gray-100 min-h-screen p-4 sm:p-6 lg:p-8 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-red-400 text-center mb-4 p-3 bg-red-900/20 rounded-md border border-red-800">
-            Error loading dashboard: {error}
-          </div>
+          <Message message={`Error loading dashboard: ${error}`} type="error" />
           <Button
             onClick={() => window.location.reload()}
-            className="text-gray-50 bg-blue-500 hover:bg-blue-600 focus:ring-blue-500 focus:ring-offset-gray-900"
+            className="mt-4 text-gray-50 bg-blue-500 hover:bg-blue-600 focus:ring-blue-500 focus:ring-offset-gray-900"
           >
             Retry
           </Button>

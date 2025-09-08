@@ -137,7 +137,7 @@ const Header = () => {
             alt="Employer Dashboard"
             className="w-12 h-12"
           />
-          <span className="inline">Employd</span>
+          <span className="inline">Emploid</span>
         </Link>
 
         {/* Main Navigation - desktop only */}

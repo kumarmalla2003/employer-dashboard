@@ -1,6 +1,7 @@
 // src/components/ResetPasswordModal.jsx
 import React, { useState } from "react";
 import Button from "./Button.jsx";
+import Message from "./Message";
 
 const ResetPasswordModal = ({ show, onClose }) => {
   const [email, setEmail] = useState(""); // Add this line
@@ -100,10 +101,8 @@ const ResetPasswordModal = ({ show, onClose }) => {
         </div>
         <hr className="border-gray-700" />
         <form onSubmit={handlePasswordReset} className="space-y-6">
-          {error && <div className="text-red-400 text-center">{error}</div>}
-          {success && (
-            <div className="text-green-400 text-center">{success}</div>
-          )}
+          <Message message={error} type="error" />
+          <Message message={success} type="success" />
           <div>
             <label
               htmlFor="email"

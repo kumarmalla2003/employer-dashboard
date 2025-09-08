@@ -1,13 +1,27 @@
 // src/pages/EmployeeListPage.jsx
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Button from "../components/Button";
+import Message from "../components/Message";
 
 const EmployeeListPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [employees, setEmployees] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState(null);
+  const [message, setMessage] = useState(location.state?.message || "");
+
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => setMessage(""), 5000);
+      // Clear message from location state after showing it
+      if (location.state?.message) {
+        navigate(location.pathname, { replace: true });
+      }
+      return () => clearTimeout(timer);
+    }
+  }, [message, location, navigate]);
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -38,14 +52,18 @@ const EmployeeListPage = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this employee?")) {
       try {
-        const response = await fetch(`http://localhost:8000/api/employees/${id}`, {
-          method: "DELETE",
-          credentials: "include",
-        });
+        const response = await fetch(
+          `http://localhost:8000/api/employees/${id}`,
+          {
+            method: "DELETE",
+            credentials: "include",
+          }
+        );
         if (!response.ok) {
           throw new Error("Failed to delete employee.");
         }
         setEmployees(employees.filter((emp) => emp.id !== id));
+        setMessage("Employee deleted successfully!");
       } catch (err) {
         setError(err.message);
       }
@@ -58,7 +76,9 @@ const EmployeeListPage = () => {
 
   const filteredEmployees = employees.filter(
     (employee) =>
-      `${employee.firstName} ${employee.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      `${employee.firstName} ${employee.lastName}`
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
       String(employee.id).toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -77,7 +97,13 @@ const EmployeeListPage = () => {
       </div>
       <hr className="border-gray-700 mb-6" />
 
-      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+      {message && (
+        <Message
+          message={message}
+          type={message.toLowerCase().includes("added") ? "success" : "error"}
+        />
+      )}
+      <Message message={error} type="error" />
 
       <div className="mb-6">
         <input
@@ -104,7 +130,7 @@ const EmployeeListPage = () => {
                   scope="col"
                   className="px-6 py-3 text-center text-lg font-bold text-gray-400 uppercase tracking-wider"
                 >
-                  Employee ID
+                  Emp ID
                 </th>
                 <th
                   scope="col"

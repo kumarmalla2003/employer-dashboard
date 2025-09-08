@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "../components/Button";
+import Message from "../components/Message";
 
 const EmployeeDetailsPage = () => {
   const navigate = useNavigate();
@@ -15,9 +16,12 @@ const EmployeeDetailsPage = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`http://localhost:8000/api/employees/${id}`, {
-          credentials: "include",
-        });
+        const response = await fetch(
+          `http://localhost:8000/api/employees/${id}`,
+          {
+            credentials: "include",
+          }
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch employee details.");
         }
@@ -36,14 +40,21 @@ const EmployeeDetailsPage = () => {
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this employee?")) {
       try {
-        const response = await fetch(`http://localhost:8000/api/employees/${id}`, {
-          method: "DELETE",
-          credentials: "include",
-        });
+        const response = await fetch(
+          `http://localhost:8000/api/employees/${id}`,
+          {
+            method: "DELETE",
+            credentials: "include",
+          }
+        );
         if (!response.ok) {
           throw new Error("Failed to delete employee.");
         }
-        navigate("/employees");
+
+        // ✅ Navigate back with success message
+        navigate("/employees", {
+          state: { message: "Employee deleted successfully!" },
+        });
       } catch (err) {
         setError(err.message);
       }
@@ -60,8 +71,14 @@ const EmployeeDetailsPage = () => {
 
   if (error) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-950 text-gray-100">
-        <p className="text-xl text-red-400">{error}</p>
+      <div className="flex flex-col justify-center items-center min-h-screen bg-gray-950 text-gray-100">
+        <Message message={error} type="error" />
+        <Button
+          onClick={() => navigate("/employees")}
+          className="mt-4 text-gray-50 bg-blue-500 hover:bg-blue-600 focus:ring-blue-500 focus:ring-offset-gray-900"
+        >
+          Back to Employee List
+        </Button>
       </div>
     );
   }
@@ -114,7 +131,11 @@ const EmployeeDetailsPage = () => {
             </div>
             <div className="p-3 bg-gray-800 rounded-lg">
               <p className="text-sm font-medium text-gray-400">Date of Birth</p>
-              <p className="text-gray-200">{employee.dateOfBirth}</p>
+              <p className="text-gray-200">
+                {new Date(employee.dateOfBirth)
+                  .toLocaleDateString("en-GB")
+                  .replace(/\//g, "-")}
+              </p>
             </div>
           </div>
         </div>
@@ -135,7 +156,7 @@ const EmployeeDetailsPage = () => {
             </div>
             <div className="p-3 bg-gray-800 rounded-lg">
               <p className="text-sm font-medium text-gray-400">Salary</p>
-              <p className="text-gray-200">${employee.salary}</p>
+              <p className="text-gray-200">&#8377;{employee.salary}</p>
             </div>
             <div className="p-3 bg-gray-800 rounded-lg">
               <p className="text-sm font-medium text-gray-400">Hire Date</p>

@@ -33,8 +33,8 @@ const MobileNav = ({
       >
         <div className="flex items-center justify-between p-4 border-b border-gray-700">
           <div className="flex items-center space-x-3 text-3xl font-bold text-blue-500">
-            <img src="../../logo.png" alt="Employd" className="w-10 h-10" />
-            <span>Employd</span>
+            <img src="../../logo.png" alt="Emploid" className="w-10 h-10" />
+            <span>Emploid</span>
           </div>
           <button
             onClick={onClose}

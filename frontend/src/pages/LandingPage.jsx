@@ -48,7 +48,7 @@ const LandingPage = () => {
                 alt="Employer Dashboard"
                 className="w-12 h-12"
               />
-              <span className="inline">Employd</span>
+              <span className="inline">Emploid</span>
             </Link>
             <nav className="hidden sm:flex items-center space-x-2 sm:space-x-4">
               <Button
@@ -93,7 +93,7 @@ const LandingPage = () => {
                   alt="Employer Dashboard"
                   className="w-12 h-12"
                 />
-                <span className="inline">Employd</span>
+                <span className="inline">Emploid</span>
               </Link>
             </div>
           </div>
@@ -183,7 +183,7 @@ const LandingPage = () => {
               <div className="max-w-3xl mx-auto bg-gray-900 p-10 rounded-lg shadow-2xl border border-gray-800 space-y-6">
                 <h2 className="text-2xl sm:text-4xl font-bold text-white">
                   Ready to Get Started with{" "}
-                  <span className="text-blue-500">Employd</span>?
+                  <span className="text-blue-500">Emploid</span>?
                 </h2>
                 <p className="text-lg text-gray-400">
                   Join us to take control of your employee data and simplify

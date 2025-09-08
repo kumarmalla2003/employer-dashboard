@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "../components/Button";
+import Message from "../components/Message";
 
 const AddEditEmployeePage = () => {
   const navigate = useNavigate();
@@ -140,7 +141,10 @@ const AddEditEmployeePage = () => {
       }
 
       // Success - redirect to employees list
-      navigate("/employees");
+      const message = isEditing
+        ? "Employee updated successfully!"
+        : "Employee added successfully!";
+      navigate("/employees", { state: { message } });
     } catch (err) {
       console.error("Submit error:", err);
       setError(err.message);
@@ -165,11 +169,7 @@ const AddEditEmployeePage = () => {
       <hr className="border-gray-700 mb-6" />
 
       {loading && <div className="text-center text-blue-400">Loading...</div>}
-      {error && (
-        <div className="text-red-400 text-center mb-4 p-3 bg-red-900/20 rounded-md border border-red-800">
-          {error}
-        </div>
-      )}
+      <Message message={error} type="error" />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Personal Information */}
